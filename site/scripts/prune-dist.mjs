@@ -93,3 +93,42 @@ if (oversized.length > 0) {
   console.error('Compress these before deploying — the upload will be rejected otherwise.')
   process.exit(1)
 }
+
+/**
+ * `.env` is untracked, so a fresh clone builds with no PostHog key and ships
+ * with analytics silently switched off. That is the right default for a secret,
+ * but a silent one — someone restoring from git and deploying would be left
+ * wondering weeks later why the funnel went flat. Say it at build time instead.
+ *
+ * This runs in plain node rather than under Astro, so .env has to be read here;
+ * Astro loads it for the bundle but not for this process.
+ */
+function envKey() {
+  if (process.env.PUBLIC_POSTHOG_KEY) return process.env.PUBLIC_POSTHOG_KEY
+  try {
+    const file = readFileSync(join(siteRoot, '.env'), 'utf8')
+    return file.match(/^PUBLIC_POSTHOG_KEY=(.+)$/m)?.[1]?.trim()
+  } catch {
+    return undefined
+  }
+}
+
+function envDisabled() {
+  if (process.env.PUBLIC_ANALYTICS_ENABLED === 'false') return true
+  try {
+    const file = readFileSync(join(siteRoot, '.env'), 'utf8')
+    return file.match(/^PUBLIC_ANALYTICS_ENABLED=(.+)$/m)?.[1]?.trim() === 'false'
+  } catch {
+    return false
+  }
+}
+
+if (envDisabled()) {
+  console.log('prune-dist: analytics is off for this build (PUBLIC_ANALYTICS_ENABLED=false).')
+} else if (!envKey()) {
+  console.warn(
+    'prune-dist: WARNING — no PUBLIC_POSTHOG_KEY, so this build sends no analytics.\n' +
+    '            Copy .env.example to .env and fill it in before deploying, or set\n' +
+    '            PUBLIC_ANALYTICS_ENABLED=false to make the omission deliberate.'
+  )
+}
