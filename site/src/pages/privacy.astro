@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { siteConfig } from '../config/site'
+---
+
+<BaseLayout
+  title="Privacy"
+  description="How this website handles data, and how children's work is published."
+>
+  <section class="section">
+    <div class="wrap prose">
+      <p class="eyebrow">Privacy</p>
+      <h1>Privacy notice</h1>
+
+      <p class="lede">
+        Story Sprout works with children, so we treat privacy as part of building the site rather
+        than as a later addition.
+      </p>
+
+      <h2>This website</h2>
+      <p>
+        This site is a set of static pages. It has no accounts, and it sets no cookies.
+      </p>
+
+      <h2>Measurement</h2>
+      <p>
+        We count how many people find the training sessions and how many go on to sign up,
+        because that is how we decide where to spend a small volunteer team's outreach effort.
+        We use PostHog for this, and we have configured it narrowly.
+      </p>
+      <p>What is recorded is a short list of anonymous events — a page being viewed, a session
+        button being clicked, a sign-up completing — together with which page it happened on,
+        and, if you arrived from one of our outreach emails, which campaign sent you.</p>
+      <p>We do not record:</p>
+      <ul>
+        <li>your name, email address, or organization — the sign-up form's contents are never
+          sent to our analytics;</li>
+        <li>anything you type, or the contents of any form field;</li>
+        <li>your screen, your mouse movements, or your keystrokes — session recording, replay
+          and heatmaps are switched off;</li>
+        <li>a profile of you across visits.</li>
+      </ul>
+      <p>
+        No cookie or browser storage is used, so nothing identifies you when you come back, and
+        there is nothing here to opt into or out of via a banner. We do not build advertising
+        audiences and we do not share this data with ad networks. If your browser sends a Global
+        Privacy Control or Do Not Track signal, we record nothing at all.
+      </p>
+
+      <h2>The webinar sign-up form</h2>
+      <p>
+        The one place this site collects anything is the training webinar sign-up on the home
+        page. It asks for your name, your email address, and — optionally — your school or
+        organization, along with the session you chose.
+      </p>
+      <p>
+        Those details are added to a private Google Sheet that only the Story Sprout organizers
+        can open, and emailed to them so they can send you the joining link. Nothing is shown
+        publicly, there is no account, and the list is not sold, shared, or used for any purpose
+        other than running these sessions.
+      </p>
+      <p>
+        Google processes the sheet and the notification email on our behalf. To see what we hold
+        about you or to have it deleted, reply to the email you receive or contact{' '}
+        <a href={siteConfig.parentOrg.url} rel="noopener">{siteConfig.parentOrg.name}</a>.
+      </p>
+      <p>
+        The form is intended for adults — educators and volunteers. Please do not use it to sign
+        a child up.
+      </p>
+      <p>
+        Our analytics records that a sign-up happened and which session it was for. It does not
+        receive what you typed.
+      </p>
+      <h2>Story Sprout Studio</h2>
+      <p>
+        <a href={siteConfig.platformUrl} rel="noopener">Story Sprout Studio</a> — the place
+        children actually write — is a separate application from this website, and the
+        following describes it rather than these pages.
+      </p>
+      <p>
+        The Studio is designed to keep a child's work with the adult supervising them. It has
+        no child accounts. A project and its revision history are held in a local file that the
+        supervising adult controls, and the platform is designed to retain no readable
+        server-side copy of it. Requests for illustrations are passed to the model provider
+        under that provider's terms.
+      </p>
+
+      <h2>How children's work is published</h2>
+      <p>Storybooks appear on this site only when both are true:</p>
+      <ul>
+        <li>the item has been approved for publication, and</li>
+        <li>its consent status has been confirmed and recorded.</li>
+      </ul>
+      <p>Where a book is published, we do not publish:</p>
+      <ul>
+        <li>a child's full name, school, contact details, or exact location;</li>
+        <li>a child's age inferred from appearance;</li>
+        <li>photographs whose permission status is unconfirmed.</li>
+      </ul>
+      <p>
+        Author credits use an approved display name, a group label, or simply "Young authors".
+        Alt text describes the artwork and the activity, never the identity of a child.
+      </p>
+      <p>
+        Photographs published here have their EXIF and location metadata removed before
+        publication.
+      </p>
+
+      <h2>Asking us to remove something</h2>
+      <p>
+        If you are a parent, guardian, or educator and want a book or image taken down, contact{' '}
+        <a href={siteConfig.parentOrg.url} rel="noopener">{siteConfig.parentOrg.name}</a> and we
+        will remove it.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>Note for the project team.</strong> This page describes the practices the site is
+          actually built to follow. Add a direct contact address and have the wording reviewed
+          before publishing the site.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .note {
+    border: 1px dashed var(--color-border);
+    background: var(--color-lavender-soft);
+    border-radius: var(--radius-card);
+    padding: 1.25rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--color-muted);
+  }
+
+  .note p {
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,419 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import EmptyState from '../../components/EmptyState.astro'
+import PdfViewer from '../../components/PdfViewer.astro'
+import { getBlog, getResearch, researchStatusLabel } from '../../lib/content'
+import { assetUrl } from '../../lib/assets'
+import { siteConfig } from '../../config/site'
+
+const items = await getResearch()
+const posts = await getBlog()
+
+// Institutions the advising researchers are affiliated with, supplied by the
+// project team. Listed as a set rather than an inline sentence because
+// "University of California, Irvine" contains a comma and would read as two
+// entries in a comma-separated run.
+const advisorInstitutions = [
+  'Massachusetts Institute of Technology',
+  'Carnegie Mellon University',
+  'Inria Paris',
+  'University of California, Irvine',
+  'University of Colorado Boulder',
+]
+---
+
+<BaseLayout
+  title="Research & Code"
+  description="Papers from the Story Sprout project, and the open-source code behind the studio."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Research &amp; Code</p>
+      <h1>Papers, code, and what we are learning</h1>
+
+      <div class="intro">
+        <p class="lede">
+          Story Sprout began with a summer camp. We wanted to improve children's literacy, so
+          we inverted a familiar idea: instead of AI making things for children, children would
+          write their own stories and direct the AI to illustrate them.
+        </p>
+        <p>
+          That first workshop was highly engaging — but the commercial image site we used
+          showed inappropriate ads and was not built for children. So our team built its own.
+          Three students spent ten months building it, from August 2025 to June 2026.
+        </p>
+        <p>
+          The children's engagement made us ask why the curriculum worked. We cold-emailed 25
+          professors in the learning sciences and child–computer interaction; three replied
+          with advice and papers. After reading seventeen of them and continuing those
+          conversations, we developed the <strong>Nested Cognitive Mirror</strong> — a
+          framework for how children externalize, judge, and revise their own ideas. We tested
+          the revised curriculum and platform in summer 2026.
+        </p>
+      </div>
+
+      <ol class="parts">
+        <li>
+          <a href="#papers">
+            <span class="parts__num">1</span>
+            <span class="parts__title">Papers</span>
+            <span class="parts__desc">What we have written, with its publication status.</span>
+          </a>
+        </li>
+        <li>
+          <a href="#code">
+            <span class="parts__num">2</span>
+            <span class="parts__title">Open source</span>
+            <span class="parts__desc">The studio's full source, under an MIT licence.</span>
+          </a>
+        </li>
+        <li>
+          <a href="#blog">
+            <span class="parts__num">3</span>
+            <span class="parts__title">Blog</span>
+            <span class="parts__desc">Our own write-ups, and coverage of Story Sprout elsewhere.</span>
+          </a>
+        </li>
+      </ol>
+
+      <h2 class="section-heading" id="papers">1. Papers</h2>
+
+      {
+        items.length === 0 ? (
+          <EmptyState title="No research listed yet">
+            <p>
+              Papers, posters, and presentations will be listed here once the project team
+              confirms their titles, venues, and publication status.
+            </p>
+          </EmptyState>
+        ) : (
+          <ul class="research">
+            {items.map((item) => (
+              <li class="card entry">
+                <div class="entry__head">
+                  <h2>{item.data.title}</h2>
+                  <span class="badge">
+                    {researchStatusLabel(item.data.status, item.data.venueShort)}
+                  </span>
+                </div>
+                <p class="entry__byline muted">
+                  {item.data.authors.join(', ')}
+                  {item.data.authors.length > 0 && ' · '}
+                  {item.data.year}
+                  {item.data.venue && ` · ${item.data.venue}`}
+                </p>
+                <p>{item.data.summary}</p>
+                <div class="entry__actions">
+                  {item.data.officialUrl && (
+                    <a class="btn btn--outline btn--small" href={item.data.officialUrl} rel="noopener">
+                      Publisher page
+                    </a>
+                  )}
+                  {item.data.pdfUrl && (
+                    <>
+                      <PdfViewer
+                        url={assetUrl(item.data.pdfUrl)!}
+                        title={item.data.title}
+                        label={`Read the ${item.data.type}`}
+                        variant="primary"
+                      />
+                      <a class="btn btn--outline btn--small" href={assetUrl(item.data.pdfUrl)} download>
+                        Download (PDF)
+                      </a>
+                    </>
+                  )}
+                </div>
+                {item.data.citation && (
+                  <details class="entry__cite">
+                    <summary>Citation</summary>
+                    <p>{item.data.citation}</p>
+                  </details>
+                )}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      <section class="opensource" id="code">
+        <h2>2. The studio is open source</h2>
+        <p>
+          Story Sprout Studio runs entirely in the browser. The whole thing — the page
+          children write on, the content safeguard, and the way it talks to the image model —
+          is published under an MIT licence. Anyone can read it, check what it actually does,
+          or run their own copy.
+        </p>
+        <p class="opensource__why">
+          For a tool used by children, we think being able to look inside matters more than
+          being told it is safe.
+        </p>
+        <p class="opensource__actions">
+          <a class="btn btn--primary btn--small" href={siteConfig.codeUrl} rel="noopener">
+            View the code on GitHub
+          </a>
+          <a class="btn btn--outline btn--small" href={siteConfig.platformUrl} rel="noopener"
+            data-cta="studio" data-cta-location="research">
+            Try the studio
+          </a>
+        </p>
+      </section>
+      <h2 class="section-heading" id="blog">3. Blog</h2>
+      <p class="notes__intro">
+        Write-ups from the classroom and the build, plus articles about Story Sprout published
+        elsewhere.
+      </p>
+
+      {
+        posts.length === 0 ? (
+          <EmptyState title="Nothing published yet">
+            <p>Posts and links will appear here.</p>
+          </EmptyState>
+        ) : (
+          <ul class="posts">
+            {posts.map((post) => {
+              const external = post.data.kind === 'external'
+              const href = external ? post.data.externalUrl : `/blog/${post.id}/`
+              return (
+                <li class="card post">
+                  <p class="post__meta muted">
+                    <time datetime={post.data.date.toISOString()}>
+                      {new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'UTC' }).format(post.data.date)}
+                    </time>
+                    {external && <span class="badge badge--external">External</span>}
+                  </p>
+                  <h3>
+                    {href ? (
+                      <a href={href} rel={external ? 'noopener' : undefined}>{post.data.title}</a>
+                    ) : (
+                      post.data.title
+                    )}
+                  </h3>
+                  <p class="muted">{post.data.summary}</p>
+                  {external && post.data.externalSource && (
+                    <p class="post__source muted">Published by {post.data.externalSource}</p>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )
+      }
+
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* The page has three distinct parts; say so before the reader has to infer it. */
+  .parts {
+    list-style: none;
+    margin: clamp(1.75rem, 4vw, 2.5rem) 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    counter-reset: none;
+  }
+
+  @media (min-width: 48rem) {
+    .parts {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .parts a {
+    display: grid;
+    gap: 0.35rem;
+    height: 100%;
+    padding: 1.15rem 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .parts a:hover {
+    border-color: var(--color-purple);
+    transform: translateY(-2px);
+  }
+
+  .parts__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: var(--color-purple-dark);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+
+  .parts__title {
+    font-weight: 800;
+    font-size: 1.08rem;
+    color: var(--color-purple-text);
+  }
+
+  .parts__desc {
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+
+  .posts {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .post {
+    padding: 1.35rem 1.5rem;
+  }
+
+  .post__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    margin: 0 0 0.4rem;
+  }
+
+  .post h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .post h3 a {
+    text-decoration: none;
+  }
+
+  .post h3 a:hover {
+    text-decoration: underline;
+  }
+
+  .post__source {
+    font-size: 0.88rem;
+    margin: 0.5rem 0 0;
+  }
+
+  .notes__intro {
+    max-width: 62ch;
+    color: var(--color-muted);
+  }
+
+  .section-heading {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+  }
+
+  .opensource {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    background: var(--color-lavender-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: clamp(1.5rem, 3.5vw, 2.25rem);
+  }
+
+  .opensource h2 {
+    margin-top: 0;
+    font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+  }
+
+  .opensource p {
+    max-width: 62ch;
+    color: var(--color-muted);
+  }
+
+  .opensource__why {
+    color: var(--color-ink) !important;
+    font-weight: 700;
+  }
+
+  .opensource__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0;
+  }
+
+  .intro {
+    max-width: 62ch;
+  }
+
+  .intro p:not(.lede) {
+    color: var(--color-muted);
+  }
+
+  .institutions {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .institutions li {
+    background: var(--color-lavender-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    padding: 0.3rem 0.9rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .research {
+    list-style: none;
+    margin: 2.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .entry {
+    padding: 1.5rem;
+  }
+
+  .entry__head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .entry__head h2 {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+
+  .entry__byline {
+    font-size: 0.92rem;
+    margin: 0.4rem 0 0.75rem;
+  }
+
+  .entry__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .entry__cite {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .entry__cite summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .entry__cite p {
+    margin-top: 0.6rem;
+    color: var(--color-muted);
+  }
+</style>

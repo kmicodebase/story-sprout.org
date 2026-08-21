@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { siteConfig } from '../config/site'
+
+const configured = Boolean(siteConfig.donationUrl)
+---
+
+<!-- Until a real donation flow is wired up this page is noindex, so it cannot be
+     found and mistaken for a working way to give. -->
+<BaseLayout
+  title="Donate"
+  description="How to support Story Sprout."
+  noindex={!configured}
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Donate</p>
+      <h1>Support young authors</h1>
+      <p class="lede">
+        Support helps more children write, illustrate, and share stories of their own.
+      </p>
+
+      <div class="prose">
+        {
+          configured ? (
+            <>
+              <p>
+                Donations are processed by{' '}
+                <a href={siteConfig.parentOrg.url} rel="noopener">
+                  {siteConfig.parentOrg.name}
+                </a>
+                , a {siteConfig.parentOrg.taxStatusDisplay}, through its secure donation page.
+                This website does not collect or process card details.
+              </p>
+              <p>
+                <a class="btn btn--primary" href={siteConfig.donationUrl} rel="noopener">
+                  Donate through {siteConfig.parentOrg.name}
+                </a>
+              </p>
+            </>
+          ) : (
+            <div class="empty">
+              <h2>Online giving is not set up yet</h2>
+              <p>
+                Story Sprout is a program of{' '}
+                <a href={siteConfig.parentOrg.url} rel="noopener">
+                  {siteConfig.parentOrg.name}
+                </a>
+                , a {siteConfig.parentOrg.taxStatusDisplay}.
+              </p>
+              <p>
+                We are not showing a donation form here until the approved donation page and the
+                exact wording about who receives the gift and how it is tax-deductible have been
+                confirmed. A form that looked real but did nothing would be worse than none.
+              </p>
+              <p>
+                In the meantime, please visit{' '}
+                <a href={siteConfig.parentOrg.url} rel="noopener">
+                  {siteConfig.parentOrg.name}
+                </a>{' '}
+                directly.
+              </p>
+            </div>
+          )
+        }
+
+        <h2>What your support does</h2>
+        <p>
+          Giving supports the workshop sessions in which children write and illustrate their own
+          picture books, the curriculum that educators use to run them, and the platform the
+          children write on.
+        </p>
+
+        <p class="muted">
+          Questions about giving? See our <a href="/privacy/">privacy notice</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

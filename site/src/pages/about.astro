@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { siteConfig } from '../config/site'
+import { getPrograms } from '../lib/content'
+
+const programs = await getPrograms()
+---
+
+<BaseLayout
+  title="About"
+  description="How Story Sprout started, how it is built, and the role the AI illustrator plays."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">About</p>
+      <h1>Children are the authors.</h1>
+      <p class="lede">
+        Story Sprout is an educational program, a creative platform, and a research project in
+        which children write their own stories and turn them into picture books.
+      </p>
+
+      <div class="prose">
+        <h2>How it started</h2>
+        <p>
+          In summer 2024 our team helped make AI-generated videos for a children's music
+          program at {siteConfig.parentOrg.name}. That autumn we began writing weekly science
+          lessons and leading volunteers at an after-school program. After a year, the center
+          asked us to create a program for its 2025 summer camp — and let us choose the goal.
+        </p>
+        <p>
+          We wanted to improve children's literacy. So we inverted the idea we had started
+          with: instead of adults using AI to make media for children, children would write
+          their own stories and direct AI to make the pictures. That became Story Sprout.
+        </p>
+
+        <h2>Why we built our own platform</h2>
+        <p>
+          We designed the curriculum and ran the first workshops alongside the center's
+          volunteers. The children were far more engaged than we expected. But the free
+          commercial image site we were using was not made for them: students tested its
+          limits, and it sometimes displayed inappropriate ads. Once, one of us instinctively
+          covered an ad with a hand.
+        </p>
+        <p>
+          So Story Sprout needed a platform of its own. With {siteConfig.parentOrg.name}'s
+          support we formed a three-student team, designed the interface and its key features,
+          and led ten months of development from August 2025 to June 2026 — including
+          local-only storage and separate teacher and student modes. We tested the beta in
+          spring 2026.
+        </p>
+
+        <h2>Why the curriculum works</h2>
+        <p>
+          The children's engagement made us curious about <em>why</em> it was working. We
+          cold-emailed 25 professors in the learning sciences and child–computer interaction.
+          Three replied with detailed advice and papers to read. After about seventeen papers
+          and many conversations, we came to see the curriculum as a cycle: a child expresses
+          an idea, sees it rendered, judges it, and revises it.
+        </p>
+        <p>
+          We called that the <strong>Nested Cognitive Mirror</strong>. The framework gave the
+          platform a clearer direction — children remain the authors and the judges, and the
+          AI illustrates. We built those decisions in, tested them across the 2026 summer
+          sessions, and kept improving the platform as we used it. The work is written up on
+          our <a href="/research/">research page</a>, alongside the studio's source code.
+        </p>
+
+        <h2>What children actually do</h2>
+        <p>
+          The child supplies the story language and decides what belongs in the book. When it
+          is time to illustrate a page, the child describes the scene they have in mind. The AI
+          illustrator renders an image from that description. The child then looks at what came
+          back, decides whether it matches the story they meant to tell, and revises the
+          description until it does.
+        </p>
+        <p>
+          That loop — describe, look closely, say it more clearly — is the point. The AI is
+          used as an illustrator, not as the author of the child's story.
+        </p>
+
+        <h2>The studio</h2>
+        <p>
+          <a href={siteConfig.platformUrl} rel="noopener" data-cta="studio" data-cta-location="about">Story Sprout Studio</a> runs in the
+          browser. A project and its revision history stay in a local file the supervising
+          adult controls; there are no child accounts. Teacher and student modes are separate.
+          The whole thing is <a href={siteConfig.codeUrl} rel="noopener">open source</a>.
+        </p>
+
+        <h2>Who it is for</h2>
+        <p>
+          The current target age range is approximately 7–13, with some activities designed
+          especially for younger children. The curriculum is free to download and use, and runs
+          as 4 to 8 sessions.
+        </p>
+
+        <h2>Where it runs</h2>
+        <p>
+          We continue to run workshops at the original center, and we now train educators and
+          volunteers through <a href="/#training">webinars</a> so they can run Story Sprout in
+          their own classroom or community group.
+        </p>
+        <ul>
+          {
+            programs.map((program) => (
+              <li>
+                <a href={`/programs/${program.id}/`}>{program.data.title}</a>
+                {program.data.formatDisplay && (
+                  <span class="muted"> — {program.data.formatDisplay}</span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+
+        <h2>Who runs it</h2>
+        <p>
+          Story Sprout is a program of{' '}
+          <a href={siteConfig.parentOrg.url} rel="noopener">{siteConfig.parentOrg.name}</a>, a{' '}
+          {siteConfig.parentOrg.taxStatusDisplay}. To keep the platform free for educators, we
+          apply for grants and seek donations — you can{' '}
+          <a href="/donate/">support the program here</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

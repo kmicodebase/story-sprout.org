@@ -1,0 +1,23 @@
+# Dependencies and build output. `site/` has its own .gitignore covering the
+# same ground; this one applies to the whole project.
+node_modules/
+site/dist/
+site/.astro/
+site/.asset-tmp/
+
+# Secrets. .env holds the PostHog key and is deliberately untracked —
+# site/.env.example documents what belongs in it.
+.env
+.env.*
+!.env.example
+
+# OS and editor noise
+.DS_Store
+.idea/
+*.swp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

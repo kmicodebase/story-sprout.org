@@ -1,0 +1,98 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { isPending } from '../lib/content'
+import { assetUrl } from '../lib/assets'
+
+interface Props {
+  story: CollectionEntry<'stories'>
+  /** Compact covers used inside a program card. */
+  compact?: boolean
+}
+
+const { story, compact = false } = Astro.props
+const { title, cover, alt, authorDisplay } = story.data
+const pending = isPending(story)
+---
+
+<article class:list={['story-card', compact && 'story-card--compact']}>
+  <a class="story-card__link" href={`/stories/${story.id}/`}>
+    <span class="story-card__frame">
+      <img
+        src={assetUrl(cover)}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        width={compact ? 300 : 600}
+        height={compact ? 200 : 400}
+      />
+    </span>
+    <span class="story-card__body">
+      <span class="story-card__title">{title}</span>
+      {!compact && <span class="story-card__author">{authorDisplay}</span>}
+      {pending && <span class="badge badge--pending">Pending consent review</span>}
+    </span>
+  </a>
+</article>
+
+<style>
+  .story-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .story-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .story-card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+
+  /* Covers are letterboxed rather than cropped so a title printed near the
+     edge of a child's cover is never cut off. */
+  .story-card__frame {
+    display: block;
+    aspect-ratio: 3 / 2;
+    background: var(--color-lavender-soft);
+  }
+
+  .story-card__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .story-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+    padding: 1rem 1.1rem 1.15rem;
+  }
+
+  .story-card__title {
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  .story-card__author {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .story-card--compact .story-card__body {
+    padding: 0.6rem 0.7rem 0.75rem;
+  }
+
+  .story-card--compact .story-card__title {
+    font-size: 0.85rem;
+  }
+</style>

@@ -1,0 +1,40 @@
+{
+  "name": "story-sprout-website",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/prune-dist.mjs",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check:content": "node scripts/check-content.mjs",
+    "assets": "node scripts/build-assets.mjs",
+    "verify": "astro check && npm run build && node scripts/check-content.mjs",
+    "astro": "astro",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=story-sprout",
+    "deploy:preview": "npm run build && wrangler pages deploy dist --project-name=story-sprout --branch=preview",
+    "covers": "node scripts/build-curriculum-covers.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "audit:analytics": "node scripts/audit-analytics.mjs",
+    "verify:live": "node scripts/verify-live-analytics.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@fontsource-variable/nunito": "^5.3.0",
+    "@lucide/astro": "^1.31.0",
+    "astro": "^7.2.2",
+    "pdf-lib": "^1.17.1",
+    "posthog-js": "^1.418.6",
+    "sharp": "^0.35.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@cloudflare/workers-types": "^5.20260816.1",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.123.0"
+  }
+}

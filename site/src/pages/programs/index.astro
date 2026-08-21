@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import EmptyState from '../../components/EmptyState.astro'
+import { getPrograms, getStories } from '../../lib/content'
+
+const programs = await getPrograms()
+const stories = await getStories()
+---
+
+<BaseLayout
+  title="Programs"
+  description="Story Sprout summer workshop sessions and the books children made in them."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Programs</p>
+      <h1>Summer workshop sessions</h1>
+      <p class="lede">
+        In each session, children work through the whole creative process in small groups and
+        finish with a picture book of their own.
+      </p>
+
+      {
+        programs.length === 0 ? (
+          <EmptyState title="No programs published yet">
+            <p>Session details will appear here once they are published.</p>
+          </EmptyState>
+        ) : (
+          <ul class="grid grid--two program-list">
+            {programs.map((program) => {
+              const count = stories.filter((s) => s.data.program === program.id).length
+              return (
+                <li class="card program">
+                  <h2>
+                    <a href={`/programs/${program.id}/`}>{program.data.title}</a>
+                  </h2>
+                  <p class="program__date">
+                    {[program.data.dateDisplay, program.data.formatDisplay].filter(Boolean).join(' · ')}
+                  </p>
+                  <p class="muted">{program.data.summary}</p>
+                  <p class="program__count muted">
+                    {count === 0
+                      ? 'No storybooks published yet'
+                      : `${count} storybook${count === 1 ? '' : 's'}`}
+                  </p>
+                </li>
+              )
+            })}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .program-list {
+    list-style: none;
+    margin: 2.5rem 0 0;
+    padding: 0;
+  }
+
+  .program {
+    padding: 1.5rem;
+  }
+
+  .program h2 {
+    font-size: 1.35rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .program h2 a {
+    text-decoration: none;
+  }
+
+  .program h2 a:hover {
+    text-decoration: underline;
+  }
+
+  .program__date {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .program__count {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+</style>

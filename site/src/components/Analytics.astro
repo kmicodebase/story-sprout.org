@@ -1,0 +1,45 @@
+---
+/**
+ * Boots analytics and wires the click events that are defined purely in markup.
+ *
+ * Registration events live in SignupDialog, because only that component knows
+ * when a submission actually succeeded.
+ */
+---
+
+<script>
+  import { capture, init, pageGroup } from '../lib/analytics'
+  import type { CtaLocation } from '../lib/analytics'
+
+  init()
+
+  const path = window.location.pathname
+  const group = pageGroup(path)
+
+  // The home page is the educator landing page for outreach links.
+  if (group === 'home') {
+    capture('educator_landing_viewed', { landing_path: path, page_group: group }, { once: 'landing' })
+  }
+
+  // One delegated listener rather than a handler per link.
+  document.addEventListener('click', (event) => {
+    const target = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-cta]')
+    if (!target) return
+
+    // Only real activations: ignore modified clicks, which open new tabs.
+    const mouse = event as MouseEvent
+    if (mouse.metaKey || mouse.ctrlKey || mouse.shiftKey || mouse.altKey || mouse.button !== 0) return
+
+    const location = (target.dataset.ctaLocation ?? 'hero') as CtaLocation
+    const kind = target.dataset.cta
+
+    if (kind === 'studio') {
+      capture('studio_cta_clicked', { cta_location: location, page_group: group })
+    } else if (kind === 'overview') {
+      capture('educator_overview_opened', {
+        asset_id: target.dataset.assetId,
+        page_group: group,
+      })
+    }
+  })
+</script>

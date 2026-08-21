@@ -1,0 +1,165 @@
+---
+import type { GetStaticPaths } from 'astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getStories, getPrograms, isPending } from '../../lib/content'
+import { assetUrl } from '../../lib/assets'
+
+export const getStaticPaths = (async () => {
+  const stories = await getStories()
+  return stories.map((story) => ({ params: { slug: story.id }, props: { story } }))
+}) satisfies GetStaticPaths
+
+const { story } = Astro.props
+const { title, summary, cover, alt, pdf, authorDisplay, ageDisplay, program } = story.data
+
+const programs = await getPrograms()
+const parent = programs.find((p) => p.id === program)
+const pending = isPending(story)
+---
+
+<BaseLayout title={title} description={summary} image={cover}>
+  <section class="section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/stories/">Stories</a>
+        <span aria-hidden="true">/</span>
+        <span>{title}</span>
+      </nav>
+
+      <div class="story">
+        <div class="story__art">
+          <img src={assetUrl(cover)} alt={alt} width="600" height="400" decoding="async" />
+        </div>
+
+        <div class="story__meta">
+          {pending && <p class="badge badge--pending">Pending consent review</p>}
+          <h1>{title}</h1>
+          <p class="story__author">{authorDisplay}</p>
+          <p class="lede">{summary}</p>
+
+          <dl class="story__facts">
+            {
+              parent && (
+                <div>
+                  <dt>Program</dt>
+                  <dd>
+                    <a href={`/programs/${parent.id}/`}>{parent.data.title}</a>
+                  </dd>
+                </div>
+              )
+            }
+            {
+              ageDisplay && (
+                <div>
+                  <dt>Ages</dt>
+                  <dd>{ageDisplay}</dd>
+                </div>
+              )
+            }
+          </dl>
+
+          <!-- The PDF is always reachable as a plain link, not only through the
+               embedded viewer below. -->
+          <a class="btn btn--primary" href={assetUrl(pdf)} download>Download the book (PDF)</a>
+        </div>
+      </div>
+
+      <div class="reader">
+        <h2>Read it here</h2>
+        <object data={assetUrl(pdf)} type="application/pdf" class="reader__frame" aria-label={`${title} (PDF)`}>
+          <p>
+            Your browser cannot display the book inline.{' '}
+            <a href={assetUrl(pdf)}>Open the PDF instead</a>.
+          </p>
+        </object>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+  }
+
+  .story {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+
+  @media (min-width: 56rem) {
+    .story {
+      grid-template-columns: 1.1fr 1fr;
+    }
+  }
+
+  .story__art {
+    background: var(--color-lavender-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .story__art img {
+    width: 100%;
+    height: auto;
+  }
+
+  .story__meta h1 {
+    font-size: clamp(1.9rem, 4vw, 2.75rem);
+    margin-bottom: 0.25rem;
+  }
+
+  .story__author {
+    color: var(--color-muted);
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .story__facts {
+    margin: 0 0 1.75rem;
+    display: grid;
+    gap: 0.3rem;
+    font-size: 0.95rem;
+  }
+
+  .story__facts div {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .story__facts dt {
+    font-weight: 800;
+  }
+
+  .story__facts dt::after {
+    content: ':';
+  }
+
+  .story__facts dd {
+    margin: 0;
+  }
+
+  .reader {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .reader__frame {
+    display: block;
+    width: 100%;
+    height: min(80vh, 44rem);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-lavender-soft);
+  }
+</style>

@@ -1,0 +1,11 @@
+{
+  // Cloudflare Pages project config.
+  //
+  // No storage bindings: webinar sign-ups go to a Google Sheet via Apps Script
+  // (see docs/google-apps-script/signup.gs), so nothing is stored on Cloudflare.
+  // The Apps Script URL and token are set as environment variables on the Pages
+  // project rather than here, because the token is a secret.
+  "name": "story-sprout",
+  "compatibility_date": "2026-08-15",
+  "pages_build_output_dir": "dist"
+}

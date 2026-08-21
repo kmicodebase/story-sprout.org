@@ -1,0 +1,55 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getBlog } from '../../lib/content'
+
+export const getStaticPaths = (async () => {
+  const posts = await getBlog()
+  // External items link straight out, so no page is generated for them — we
+  // never reproduce someone else's article here.
+  return posts
+    .filter((post) => post.data.kind === 'internal')
+    .map((post) => ({ params: { slug: post.id }, props: { post } }))
+}) satisfies GetStaticPaths
+
+const { post } = Astro.props
+const { Content } = await render(post)
+const dateFormat = new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'UTC' })
+---
+
+<BaseLayout title={post.data.title} description={post.data.summary}>
+  <article class="section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/research/#blog">Blog</a>
+        <span aria-hidden="true">/</span>
+        <span>{post.data.title}</span>
+      </nav>
+
+      <h1>{post.data.title}</h1>
+      <p class="muted">
+        <time datetime={post.data.date.toISOString()}>{dateFormat.format(post.data.date)}</time>
+        {post.data.authors.length > 0 && ` · ${post.data.authors.join(', ')}`}
+      </p>
+
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+  }
+</style>

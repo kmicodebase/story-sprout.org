@@ -1,0 +1,43 @@
+---
+/**
+ * Wordmark rebuilt as inline SVG from the approved design references (the only
+ * copies of the logo on hand are low-resolution screenshots). Scales cleanly
+ * and needs no image request.
+ */
+interface Props {
+  /** Rendered height of the book mark, in px. */
+  size?: number
+}
+const { size = 34 } = Astro.props
+---
+
+<span class="logo">
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 40 40"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <rect x="5" y="8" width="14" height="25" rx="2.5" fill="#7653c6"></rect>
+    <rect x="18" y="8" width="14" height="25" rx="2.5" fill="#a98ae6"></rect>
+    <path d="M19 8v25" stroke="#fffdfa" stroke-width="1.6" stroke-linecap="round"></path>
+    <path d="M9 15h6M9 20h6M23 15h6M23 20h6" stroke="#fffdfa" stroke-width="1.5" stroke-linecap="round" opacity=".75"></path>
+    <path d="M30.5 4.5l1 2.6 2.6 1-2.6 1-1 2.6-1-2.6-2.6-1 2.6-1z" fill="#df8e2f"></path>
+  </svg>
+  <span class="logo__text">Story Sprout</span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: var(--color-purple-text);
+    white-space: nowrap;
+  }
+</style>

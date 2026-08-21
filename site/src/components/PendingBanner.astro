@@ -1,0 +1,29 @@
+---
+import { showPendingContent } from '../config/site'
+---
+
+{
+  /* Only ever visible in dev or an explicit review build, so a reviewer can
+     never mistake pending content for something already live. */
+  showPendingContent && (
+    <div class="pending-banner" role="status">
+      <strong>Review build.</strong> Items marked <em>Pending consent review</em> are hidden from the
+      production site until the project team approves them.
+    </div>
+  )
+}
+
+<style>
+  .pending-banner {
+    background: #7a4a08;
+    color: #fff;
+    text-align: center;
+    padding: 0.6rem var(--gutter);
+    font-size: 0.9rem;
+  }
+
+  .pending-banner em {
+    font-style: normal;
+    font-weight: 800;
+  }
+</style>

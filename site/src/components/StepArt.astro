@@ -1,0 +1,577 @@
+---
+/**
+ * The three steps of the Story Sprout loop, drawn rather than described.
+ *
+ * Pure CSS/SVG — no JavaScript ships for this. Each animation depicts what the
+ * step actually is: words being written, a picture appearing from those words,
+ * and the picture changing after the child asks for a change.
+ *
+ * Decorative: the heading and body text beside each one carry the meaning, so
+ * these are hidden from assistive tech. Motion stops entirely under
+ * prefers-reduced-motion, leaving a clean final frame.
+ */
+interface Props {
+  variant: 'write' | 'illustrate' | 'revise' | 'book'
+}
+const { variant } = Astro.props
+---
+
+<span class:list={['art', `art--${variant}`]} aria-hidden="true">
+  {
+    variant === 'write' && (
+      <svg viewBox="0 0 128 104" role="presentation">
+        <rect class="sheet" x="28" y="8" width="72" height="88" rx="9" />
+        {/* Lines draw in one after another, as if being written. */}
+        <g class="lines">
+          <path pathLength="1" d="M42 30 H86" />
+          <path pathLength="1" d="M42 46 H80" />
+          <path pathLength="1" d="M42 62 H88" />
+          <path pathLength="1" d="M42 78 H68" />
+        </g>
+        <g class="pencil">
+          <path d="M0 0 l9 -9 5 5 -9 9 -6 1z" />
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 'illustrate' && (
+      <svg viewBox="0 0 128 104" role="presentation">
+        <defs>
+          <linearGradient id="pip-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#cfe6fa" />
+            <stop offset="100%" stop-color="#eef6fd" />
+          </linearGradient>
+          <clipPath id="pip-clip">
+            <rect x="12" y="12" width="104" height="80" rx="9" />
+          </clipPath>
+        </defs>
+
+        {/* The scene assembles piece by piece, as a rendering would. */}
+        <g clip-path="url(#pip-clip)">
+          <rect class="piece sky" style="--piece: 0s" x="12" y="12" width="104" height="80" />
+
+          <g class="piece" style="--piece: 0.16s">
+            <circle class="sun" cx="99" cy="29" r="9" />
+            <path class="cloud" d="M28 32 a6 6 0 0 1 11-3 a7 7 0 0 1 13 3z" />
+            <path class="cloud" d="M62 22 a4 4 0 0 1 8-2 a5 5 0 0 1 9 2z" />
+          </g>
+
+          <path class="piece hill hill--back" style="--piece: 0.3s"
+                d="M12 92 q28-26 56-14 t48-12 v46 H12z" />
+          <path class="piece hill hill--mid" style="--piece: 0.4s"
+                d="M12 92 q24-18 52-8 t52-10 v38 H12z" />
+
+          <g class="piece cottage" style="--piece: 0.52s">
+            <path class="roof" d="M57 60 L73 46 L89 60 z" />
+            <rect class="wall" x="61" y="59" width="24" height="14" />
+            <rect class="door" x="69" y="65" width="7" height="8" rx="1" />
+            <rect class="window" x="79" y="62" width="5" height="5" rx="1" />
+          </g>
+
+          <g class="piece tree" style="--piece: 0.62s">
+            <rect class="trunk" x="24" y="62" width="4" height="13" rx="1.5" />
+            <circle class="leaf" cx="26" cy="56" r="8" />
+            <circle class="leaf" cx="19" cy="61" r="5.5" />
+            <circle class="leaf" cx="33" cy="60" r="5.5" />
+          </g>
+
+          {/* A young author standing in her own picture. */}
+          <g class="piece kid" style="--piece: 0.74s">
+            <path class="kid__hair" d="M41 66 a5 5 0 0 1 10 0 q-5-3-10 0z" />
+            <circle class="kid__face" cx="46" cy="67" r="4.4" />
+            <path class="kid__body" d="M41.6 72 q4.4-2 8.8 0 l0.9 7.5 h-10.6z" />
+            <rect class="kid__leg" x="43" y="79" width="2.2" height="3.4" rx="1" />
+            <rect class="kid__leg" x="47" y="79" width="2.2" height="3.4" rx="1" />
+            <path class="kid__arm" d="M50 74 q4-1 5-4" />
+          </g>
+
+          <g class="piece bunny" style="--piece: 0.84s">
+            <ellipse class="bunny__body" cx="33" cy="81" rx="4.2" ry="3.4" />
+            <circle class="bunny__body" cx="37" cy="78" r="2.8" />
+            <ellipse class="bunny__body" cx="36" cy="73.5" rx="1.1" ry="2.6" />
+            <ellipse class="bunny__body" cx="38.6" cy="74" rx="1.1" ry="2.6" />
+            <circle class="bunny__tail" cx="29" cy="80" r="1.6" />
+          </g>
+
+          <path class="piece hill hill--front" style="--piece: 0.92s"
+                d="M12 92 q26-10 54-2 t50-6 v28 H12z" />
+
+          <g class="piece sparkles" style="--piece: 1.02s">
+            <path d="M88 44 l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z" />
+          </g>
+
+          <rect class="sweep" x="-44" y="12" width="38" height="80" />
+        </g>
+        <rect class="frame" x="12" y="12" width="104" height="80" rx="9" />
+      </svg>
+    )
+  }
+
+  {
+    variant === 'revise' && (
+      <svg viewBox="0 0 128 104" role="presentation">
+        <defs>
+          <linearGradient id="rev-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#cfe6fa" />
+            <stop offset="100%" stop-color="#eef6fd" />
+          </linearGradient>
+          <clipPath id="rev-clip">
+            <rect x="12" y="12" width="104" height="80" rx="9" />
+          </clipPath>
+        </defs>
+
+        {/* The picture the child keeps, unchanged across the redraw. */}
+        <g clip-path="url(#rev-clip)">
+          <rect class="sky sky--rev" x="12" y="12" width="104" height="80" />
+          <path class="hill hill--back" d="M12 92 q28-26 56-14 t48-12 v46 H12z" />
+          <path class="hill hill--mid" d="M12 92 q24-18 52-8 t52-10 v38 H12z" />
+
+          <g class="cottage">
+            <path class="roof" d="M57 60 L73 46 L89 60 z" />
+            <rect class="wall" x="61" y="59" width="24" height="14" />
+            <rect class="door" x="69" y="65" width="7" height="8" rx="1" />
+            <rect class="window" x="79" y="62" width="5" height="5" rx="1" />
+          </g>
+
+          <g class="tree">
+            <rect class="trunk" x="24" y="62" width="4" height="13" rx="1.5" />
+            <circle class="leaf" cx="26" cy="56" r="8" />
+            <circle class="leaf" cx="19" cy="61" r="5.5" />
+            <circle class="leaf" cx="33" cy="60" r="5.5" />
+          </g>
+
+          <g class="kid">
+            <path class="kid__hair" d="M41 66 a5 5 0 0 1 10 0 q-5-3-10 0z" />
+            <circle class="kid__face" cx="46" cy="67" r="4.4" />
+            <path class="kid__body" d="M41.6 72 q4.4-2 8.8 0 l0.9 7.5 h-10.6z" />
+            <rect class="kid__leg" x="43" y="79" width="2.2" height="3.4" rx="1" />
+            <rect class="kid__leg" x="47" y="79" width="2.2" height="3.4" rx="1" />
+            <path class="kid__arm" d="M50 74 q4-1 5-4" />
+          </g>
+
+          <g class="bunny">
+            <ellipse class="bunny__body" cx="33" cy="81" rx="4.2" ry="3.4" />
+            <circle class="bunny__body" cx="37" cy="78" r="2.8" />
+            <ellipse class="bunny__body" cx="36" cy="73.5" rx="1.1" ry="2.6" />
+            <ellipse class="bunny__body" cx="38.6" cy="74" rx="1.1" ry="2.6" />
+            <circle class="bunny__tail" cx="29" cy="80" r="1.6" />
+          </g>
+
+          {/* First take: just the sun. */}
+          <g class="take take--a">
+            <circle class="sun" cx="99" cy="30" r="8" />
+          </g>
+
+          {/* What the child asked for next: "can it have a dragon?" */}
+          <g class="take take--b">
+            <circle class="sun" cx="99" cy="27" r="11" />
+            <g class="dragon">
+              <path class="dragon__tail" d="M58 34 q-9 3 -12 -3" />
+              <ellipse class="dragon__body" cx="66" cy="33" rx="9" ry="5" />
+              <path class="dragon__wing" d="M64 29 l-5-9 l13 4z" />
+              <circle class="dragon__body" cx="76" cy="30" r="4.6" />
+              <circle class="dragon__eye" cx="78" cy="29" r="0.9" />
+            </g>
+            <path class="bird" d="M28 24 q3-3 6 0 q3-3 6 0" />
+            <path class="sparkles" d="M88 44 l2 4.5 4.5 2-4.5 2-2 4.5-2-4.5-4.5-2 4.5-2z" />
+          </g>
+
+          <path class="hill hill--front" d="M12 92 q26-10 54-2 t50-6 v28 H12z" />
+        </g>
+        <rect class="frame" x="12" y="12" width="104" height="80" rx="9" />
+
+        <g class="badge">
+          <circle class="badge__disc" cx="104" cy="84" r="15" />
+          <g class="redo">
+            <path class="redo__arc" d="M104 84 m-7 0 a7 7 0 1 1 2.5 5.4" />
+            <path class="redo__tip" d="M95 76 l6.5 1.5-4 5z" />
+          </g>
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 'book' && (
+      <svg viewBox="0 0 128 104" role="presentation">
+        <defs>
+          <linearGradient id="book-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#cfe6fa" />
+            <stop offset="100%" stop-color="#eef6fd" />
+          </linearGradient>
+          {/* The printed illustration only shows inside the right-hand page. */}
+          <clipPath id="book-page">
+            <path d="M64 28 C 78 22, 98 22, 114 28 L 114 88 C 98 82, 78 82, 64 88 Z" />
+          </clipPath>
+        </defs>
+
+        <g class="book">
+          {/* The stack of pages underneath, so it reads as a real book. */}
+          <path class="page page--edge" d="M12 34 C 30 28, 50 28, 64 34 L 64 94 C 50 88, 30 88, 12 94 Z" />
+          <path class="page page--edge" d="M64 34 C 78 28, 98 28, 116 34 L 116 94 C 98 88, 78 88, 64 94 Z" />
+
+          <path class="page" d="M14 28 C 30 22, 50 22, 64 28 L 64 88 C 50 82, 30 82, 14 88 Z" />
+          <path class="page" d="M64 28 C 78 22, 98 22, 114 28 L 114 88 C 98 82, 78 82, 64 88 Z" />
+
+          {/* Left page: the child's words. */}
+          <g class="book__text">
+            <path d="M22 40 H54" />
+            <path d="M22 49 H49" />
+            <path d="M22 58 H55" />
+            <path d="M22 67 H46" />
+            <path d="M22 76 H38" />
+          </g>
+
+          {/* Right page: the illustration they directed. */}
+          <g clip-path="url(#book-page)">
+            <rect x="64" y="22" width="52" height="70" fill="url(#book-sky)" />
+            <circle class="sun" cx="97" cy="41" r="6" />
+            <path class="hill hill--mid" d="M64 88 q14-16 26-6 t24-8 v28 H64z" />
+            <g class="cottage">
+              <path class="roof" d="M77 70 L86 60 L95 70 z" />
+              <rect class="wall" x="79" y="69" width="14" height="11" />
+              <rect class="door" x="84" y="74" width="5" height="6" rx="0.8" />
+            </g>
+            <path class="hill hill--front" d="M64 88 q16-9 28-3 t22-6 v22 H64z" />
+          </g>
+
+          {/* A page turning over, again and again. */}
+          <g class="flip">
+            <path class="page page--flip" d="M64 28 C 78 22, 98 22, 114 28 L 114 88 C 98 82, 78 82, 64 88 Z" />
+            <g class="book__text">
+              <path d="M72 42 H105" />
+              <path d="M72 52 H100" />
+              <path d="M72 62 H106" />
+              <path d="M72 72 H96" />
+            </g>
+          </g>
+
+          <path class="book__spine" d="M64 28 V88" />
+
+          {/* Finished. */}
+          <g class="book__star">
+            <path d="M104 10 l2.8 6.4 6.4 2.8-6.4 2.8-2.8 6.4-2.8-6.4-6.4-2.8 6.4-2.8z" />
+          </g>
+        </g>
+      </svg>
+    )
+  }
+</span>
+
+<style>
+  .art {
+    display: block;
+    width: 100%;
+    max-width: 11rem;
+    margin-inline: auto;
+  }
+
+  .art svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* ------------------------------------------------------------ shared -- */
+  .sheet,
+  .frame {
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: 2.5;
+  }
+
+  .sheet {
+    fill: var(--color-surface);
+  }
+
+  .sky {
+    fill: url(#pip-sky);
+  }
+
+  .sky--rev {
+    fill: url(#rev-sky);
+  }
+
+  .cloud {
+    fill: #ffffff;
+    opacity: 0.85;
+  }
+
+  /* Three depths of hill so the scene reads as a place, not a shape. */
+  .hill--back { fill: #cfe8d4; }
+  .hill--mid { fill: #a9dcb8; }
+  .hill--front { fill: #82c99a; }
+
+  .sun {
+    fill: #f5b43f;
+  }
+
+  /* Cottage — the kind of scene the children actually build. */
+  .roof { fill: #b8623f; }
+  .wall { fill: #fdf3e2; }
+  .door { fill: #7653c6; }
+  .window { fill: #cfe6fa; }
+
+  .trunk { fill: #9a6a45; }
+  .leaf { fill: #5fae7c; }
+
+  /* Characters — what turns a diagram into a storybook page. */
+  .kid__face { fill: #f2c9a0; }
+  .kid__hair { fill: #4a3728; }
+  .kid__body { fill: #7653c6; }
+  .kid__leg { fill: #4a3728; }
+
+  .kid__arm {
+    fill: none;
+    stroke: #f2c9a0;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+
+  .bunny__body { fill: #f3e7d6; }
+  .bunny__tail { fill: #ffffff; }
+
+  .dragon__body { fill: #8f6bd8; }
+  .dragon__wing { fill: #b193ec; }
+  .dragon__eye { fill: #3d312b; }
+
+  .dragon__tail {
+    fill: none;
+    stroke: #8f6bd8;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+
+  /* ---------------------------------------------------- 4. the book --- */
+  .page {
+    fill: var(--color-surface);
+    stroke: var(--color-border);
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+
+  .page--edge {
+    fill: #efe9fd;
+  }
+
+  .page--flip {
+    fill: #fdfaf4;
+  }
+
+  .book__text path {
+    stroke: var(--color-purple);
+    stroke-width: 3;
+    stroke-linecap: round;
+    fill: none;
+  }
+
+  .book__spine {
+    stroke: var(--color-border);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    fill: none;
+  }
+
+  .book__star {
+    fill: #f5b43f;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: book-star var(--cycle, 10s) ease-out infinite;
+    animation-delay: calc(var(--step-delay, 0s) + 0.9s);
+  }
+
+  @keyframes book-star {
+    0%, 6%   { opacity: 0; transform: scale(0.4) rotate(-40deg); }
+    14%      { opacity: 1; transform: scale(1) rotate(0deg); }
+    82%      { opacity: 1; }
+    92%, 100% { opacity: 0; }
+  }
+
+  /* Turns about the spine, so it reads as a page rather than a sliding card. */
+  .flip {
+    opacity: 0;
+    transform-box: view-box;
+    transform-origin: 64px 58px;
+    animation: book-flip var(--cycle, 10s) ease-in-out infinite;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  /* The turning page is only visible mid-turn. At rest the book shows the
+     child's words on the left and their illustration on the right — which is
+     the whole point of the step, so it must not be covered. */
+  @keyframes book-flip {
+    0%, 10%   { transform: scaleX(1); opacity: 0; }
+    13%       { transform: scaleX(1); opacity: 1; }
+    22%       { transform: scaleX(0.06); opacity: 1; }
+    30%       { transform: scaleX(-1); opacity: 1; }
+    34%       { transform: scaleX(-1); opacity: 0; }
+    46%       { transform: scaleX(1); opacity: 0; }
+    49%       { transform: scaleX(1); opacity: 1; }
+    58%       { transform: scaleX(0.06); opacity: 1; }
+    66%       { transform: scaleX(-1); opacity: 1; }
+    70%, 100% { transform: scaleX(-1); opacity: 0; }
+  }
+
+  .sparkles,
+  .sparkles path {
+    fill: var(--color-purple);
+  }
+
+  /* -------------------------------------------------------- 1. write --- */
+  .lines path {
+    stroke: var(--color-purple);
+    stroke-width: 4.5;
+    stroke-linecap: round;
+    fill: none;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: draw var(--cycle, 10s) ease-in-out infinite;
+  }
+
+  .lines path:nth-child(1) { animation-delay: calc(var(--step-delay, 0s) + 0s); }
+  .lines path:nth-child(2) { animation-delay: calc(var(--step-delay, 0s) + 0.4s); }
+  .lines path:nth-child(3) { animation-delay: calc(var(--step-delay, 0s) + 0.8s); }
+  .lines path:nth-child(4) { animation-delay: calc(var(--step-delay, 0s) + 1.2s); }
+
+  @keyframes draw {
+    0%      { stroke-dashoffset: 1; }
+    28%     { stroke-dashoffset: 0; }
+    82%     { stroke-dashoffset: 0; opacity: 1; }
+    92%     { stroke-dashoffset: 0; opacity: 0; }
+    92.01%  { stroke-dashoffset: 1; opacity: 1; }
+    100%    { stroke-dashoffset: 1; }
+  }
+
+  .pencil path {
+    fill: var(--color-purple-dark);
+  }
+
+  .pencil {
+    animation: pencil var(--cycle, 10s) ease-in-out infinite;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  /* Rides along each line as it is written. */
+  @keyframes pencil {
+    0%   { transform: translate(42px, 30px); opacity: 0; }
+    4%   { opacity: 1; }
+    8%   { transform: translate(86px, 30px); }
+    13%  { transform: translate(42px, 46px); }
+    21%  { transform: translate(80px, 46px); }
+    25%  { transform: translate(42px, 62px); }
+    33%  { transform: translate(88px, 62px); }
+    37%  { transform: translate(42px, 78px); }
+    45%  { transform: translate(68px, 78px); opacity: 1; }
+    55%  { transform: translate(68px, 78px); opacity: 0; }
+    100% { transform: translate(42px, 30px); opacity: 0; }
+  }
+
+  /* --------------------------------------------------- 2. illustrate --- */
+  /* Each part of the scene carries its own offset, so it builds up in order. */
+  .art--illustrate .piece {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: appear var(--cycle, 10s) ease-out infinite;
+    animation-delay: calc(var(--step-delay, 0s) + var(--piece, 0s));
+  }
+
+  @keyframes appear {
+    0%   { opacity: 0; transform: translateY(7px) scale(0.9); }
+    18%  { opacity: 1; transform: none; }
+    86%  { opacity: 1; transform: none; }
+    96%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  .sweep {
+    fill: #fff;
+    opacity: 0;
+    animation: sweep var(--cycle, 10s) ease-in-out infinite;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  @keyframes sweep {
+    0%   { transform: translateX(0); opacity: 0; }
+    4%   { opacity: 0.5; }
+    22%  { transform: translateX(168px); opacity: 0.5; }
+    26%  { transform: translateX(168px); opacity: 0; }
+    100% { transform: translateX(168px); opacity: 0; }
+  }
+
+  /* ------------------------------------------------------- 3. revise --- */
+  .bird {
+    fill: none;
+    stroke: var(--color-purple-dark);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+
+  /* The first take gives way to the version the child asked for. */
+  .take--a {
+    animation: takeA var(--cycle, 10s) ease-in-out infinite;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  .take--b {
+    animation: takeB var(--cycle, 10s) ease-in-out infinite;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  @keyframes takeA {
+    0%, 34%   { opacity: 1; }
+    46%, 92%  { opacity: 0; }
+    100%      { opacity: 1; }
+  }
+
+  @keyframes takeB {
+    0%, 38%   { opacity: 0; }
+    50%, 90%  { opacity: 1; }
+    98%, 100% { opacity: 0; }
+  }
+
+  .badge__disc {
+    fill: var(--color-purple);
+  }
+
+  .redo__arc {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+
+  .redo__tip {
+    fill: #fff;
+  }
+
+  .redo {
+    transform-origin: 104px 84px;
+    animation: redo var(--cycle, 10s) ease-in-out infinite;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  @keyframes redo {
+    0%, 30%  { transform: rotate(0deg); }
+    46%      { transform: rotate(360deg); }
+    100%     { transform: rotate(360deg); }
+  }
+
+  /* --------------------------------------------------- reduced motion --- */
+  /* Stop everything and leave a legible final frame. */
+  @media (prefers-reduced-motion: reduce) {
+    .art :global(*) {
+      animation: none !important;
+      opacity: 1 !important;
+      stroke-dashoffset: 0 !important;
+      transform: none !important;
+    }
+
+    .pencil,
+    .sweep,
+    .take--a {
+      opacity: 0 !important;
+    }
+  }
+</style>

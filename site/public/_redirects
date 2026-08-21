@@ -1,0 +1,14 @@
+# Cloudflare Pages redirects. Path-level only.
+#
+# The www → apex redirect canNOT live here: Pages matches `_redirects` sources
+# against the path alone and ignores any scheme/hostname, so a rule like
+# `https://www.example.org/* https://example.org/:splat 301` silently does
+# nothing (tested — www returned 200 and served the site). It is configured as a
+# Cloudflare Redirect Rule on the zone instead; see docs/DEPLOYMENT.md.
+
+# The News & Events pages were removed. Anything that linked to them lands on the
+# homepage rather than a 404. Safe to delete once nothing references them.
+/news      /  301
+/news/*    /  301
+/events    /  301
+/events/*  /  301

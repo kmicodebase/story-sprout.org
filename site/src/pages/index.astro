@@ -1,0 +1,870 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import StoryCard from '../components/StoryCard.astro'
+import StepArt from '../components/StepArt.astro'
+import SignupDialog from '../components/SignupDialog.astro'
+import { siteConfig } from '../config/site'
+import { getCurriculum, getPrograms, getStories, getEvents, splitEvents } from '../lib/content'
+import { assetUrl } from '../lib/assets'
+import { FileText, Users, CalendarDays, Heart } from '@lucide/astro'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+
+// The training band runs with an illustration as soon as one exists; until then
+// it lays out cleanly without one rather than showing a broken image.
+// Drop the original at ../illustrations/webinar-training.png and run `npm run assets`.
+const WEBINAR_IMAGE = '/assets/illustrations/webinar-training.webp'
+const WEBINAR_ALT =
+  'Illustration of an educator leading an online Story Sprout training session. Six participants appear on a video call beside a slide titled “Storytelling in the Classroom”, with a Story Sprout educator guide, workshop notes and picture books spread across the desk.'
+// Resolved from the project root: import.meta.url points into Astro's build
+// output during a build, not at this source file.
+const hasWebinarImage = existsSync(join(process.cwd(), 'public', WEBINAR_IMAGE))
+
+const programs = await getPrograms()
+const curriculum = (await getCurriculum()).filter((c) => !c.data.archived)
+const stories = await getStories()
+
+// The training band shows the next couple of real webinars, or says plainly that
+// none is scheduled. It never implies a session exists.
+const { upcoming } = splitEvents(await getEvents())
+const nextSessions = upcoming.slice(0, 4)
+
+// Derived, not hardcoded: if a session's end time changes the label follows.
+const minutes = (e: (typeof nextSessions)[number]) =>
+  e.data.end ? Math.round((e.data.end.getTime() - e.data.start.getTime()) / 60000) : null
+// "PT" rather than PDT/PST. Two of these four sessions fall inside daylight
+// saving and two do not, so a fixed "PST" label would be wrong for September and
+// October — and anyone converting it literally, or pasting it into a calendar,
+// would arrive an hour late. shortGeneric gives the year-round Pacific label.
+const sessionDate = (date: Date, timezone: string) =>
+  new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'shortGeneric',
+    timeZone: timezone,
+  }).format(date)
+
+const howItWorks = [
+  {
+    art: 'write',
+    title: 'Create stories',
+    body: 'Children develop their ideas and write the story by hand, in their own words.',
+  },
+  {
+    art: 'illustrate',
+    title: 'Illustrate with AI',
+    body: 'Children describe a scene, and the AI illustrator renders an image from that description.',
+  },
+  {
+    art: 'revise',
+    title: 'Review and revise',
+    body: 'Children decide whether the image matches their idea, then clarify what they want to see.',
+  },
+  {
+    art: 'book',
+    title: 'Make a real book',
+    body: 'The finished story becomes a picture book they can read aloud to the class and take home.',
+  },
+] as const
+
+const destinations = [
+  {
+    icon: FileText,
+    title: 'Research & Code',
+    body: 'Our research, and the open-source code behind the studio.',
+    href: '/research/',
+    cta: 'View research',
+  },
+  {
+    icon: Users,
+    title: 'About the program',
+    body: 'How Story Sprout works, and who it is for.',
+    href: '/about/',
+    cta: 'Learn more',
+  },
+  {
+    icon: Heart,
+    title: 'Donate',
+    body: 'Support helps more children create and share their stories.',
+    href: '/donate/',
+    cta: 'Donate',
+  },
+]
+
+const storiesFor = (programId: string) =>
+  stories.filter((s) => s.data.program === programId).slice(0, 4)
+---
+
+<BaseLayout title={siteConfig.name}>
+  <!-- ------------------------------------------------------------ hero -->
+  <section class="hero">
+    <div class="wrap hero__inner">
+      <div class="hero__copy">
+        <p class="eyebrow">A picture-book writing program</p>
+        <h1>Children direct the AI<br />and keep the pen.</h1>
+        <p class="lede">
+          Got a student who'd rather do anything than write? Give them a superpower — and watch
+          the writers and storytellers emerge with their very first picture book.
+        </p>
+        <ul class="hero__facts">
+          <li>Free to use</li>
+          <li>Ages 7–13</li>
+          <li>4–8 sessions</li>
+        </ul>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="/curriculum/">Explore the curriculum</a>
+          <a class="btn btn--outline" href={siteConfig.platformUrl} rel="noopener"
+            data-cta="studio" data-cta-location="hero">
+            Try Story Sprout Studio
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__art">
+        <img
+          src={assetUrl("/assets/illustrations/hero-classroom.webp")}
+          alt="Illustration of five students gathered around a laptop at a classroom table, planning a picture book together. Storybooks, page sketches and notebooks are spread across the table, and a whiteboard behind them reads “Every idea matters. Every story begins together.”"
+          width="1400"
+          height="788"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------- credibility -->
+  <section class="trust">
+    <div class="wrap">
+      <p>
+        Designed with researchers from <strong>MIT</strong>,{' '}
+        <strong>Carnegie Mellon</strong> and <strong>UC Irvine</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------- how it works -->
+  <section class="section section--tint">
+    <div class="wrap">
+      <h2 class="how__title">From a blank page to a finished book</h2>
+      <ul class="how">
+        {
+          howItWorks.map((item, i) => (
+            /* Each step starts a beat after the one to its left, so the row
+               plays as one left-to-right sequence rather than three loops. */
+            <li class="how__item" style={`--step-delay: ${i * 1.3}s`}>
+              <StepArt variant={item.art} />
+              <h3><span class="mark">{item.title}</span></h3>
+              <p>{item.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------- programs -->
+  <section class="section">
+    <div class="wrap programs">
+      <div class="programs__intro">
+        <h2>Stories that our students created</h2>
+        <p class="muted">
+          Real books, written and illustrated by children aged 7–13 over an eight-session
+          class. Every word is theirs.
+        </p>
+        <a class="btn btn--primary" href="/stories/">View all stories</a>
+      </div>
+
+      <div class="grid grid--two programs__cards">
+        {
+          programs.map((program) => {
+            const covers = storiesFor(program.id)
+            return (
+              <article class="card program-card">
+                <div class="program-card__body">
+                  <h3>
+                    <a href={`/programs/${program.id}/`}>{program.data.title}</a>
+                  </h3>
+                  {program.data.dateDisplay && (
+                    <p class="program-card__date">{program.data.dateDisplay}</p>
+                  )}
+                  <p class="muted">{program.data.summary}</p>
+                </div>
+
+                {covers.length > 0 ? (
+                  <ul class="program-card__covers">
+                    {covers.map((story) => (
+                      <li>
+                        <StoryCard story={story} compact />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="program-card__none muted">
+                    Storybooks from this session have not been published yet.
+                  </p>
+                )}
+              </article>
+            )
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------ curriculum -->
+  <section class="section section--tint">
+    <div class="wrap">
+      <div class="curr__head">
+        <h2>What you would teach</h2>
+        <p class="muted">
+          Four session decks, free to download and use. Classes run as 4 to 8 sessions.
+        </p>
+      </div>
+
+      <ul class="grid grid--auto curr__list">
+        {
+          curriculum.map((item) => (
+            <li class="card curr__item">
+              <a href="/curriculum/">
+                <span class="curr__frame">
+                  <img
+                    src={assetUrl(item.data.thumbnail)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="450"
+                    height="300"
+                  />
+                </span>
+                <span class="curr__title">{item.data.title}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="curr__cta">
+        <a class="btn btn--primary" href="/curriculum/">See the full curriculum</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------- educator/volunteer training -->
+  <section class="section training-band" id="training">
+    <div class:list={['wrap', 'training', hasWebinarImage && 'training--media']}>
+      {
+        hasWebinarImage && (
+          <div class="training__media">
+            <img
+              src={assetUrl(WEBINAR_IMAGE)}
+              alt={WEBINAR_ALT}
+              width="1400"
+              height="1050"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        )
+      }
+
+      <div class="training__body">
+        <p class="eyebrow">For educators &amp; volunteers</p>
+        <h2>Training webinars</h2>
+        <p class="training__lede">
+          Story Sprout runs webinars for educators and volunteers who want to bring the
+          program to their own classroom or community group. In 45 minutes we walk through
+          the curriculum, the studio, and what a session looks like in practice — and you
+          leave with the slides you need to run it. The training, the curriculum, the studio
+          and the AI illustrations are all free.
+        </p>
+
+        <div class="training__next">
+          {
+            nextSessions.length === 0 ? (
+              <p class="training__none">
+                <CalendarDays size={20} aria-hidden="true" />
+                <span>No training webinar is currently scheduled. Check back for future sessions.</span>
+              </p>
+            ) : (
+              <SignupDialog
+                sessions={nextSessions.map((event) => ({
+                  id: event.id,
+                  label: sessionDate(event.data.start, event.data.timezone),
+                  duration: minutes(event) ? `${minutes(event)} min` : undefined,
+                  iso: event.data.start.toISOString(),
+                }))}
+              />
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------- destinations -->
+  <section class="section section--tint">
+    <div class="wrap">
+      <ul class="grid grid--auto destinations">
+        {
+          destinations.map((item) => (
+            <li class="card destination">
+              <span class="destination__icon" aria-hidden="true">
+                <item.icon size={22} />
+              </span>
+              <h2 class="destination__title">{item.title}</h2>
+              <p class="muted">{item.body}</p>
+              <a class="destination__cta" href={item.href}>
+                {item.cta}
+                <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {
+    /* The "Stay in the loop" band from the mockup is intentionally omitted: no
+       newsletter provider is configured, and a form that silently discards
+       submissions is worse than no form. It renders as soon as
+       siteConfig.newsletterUrl is filled in. */
+    siteConfig.newsletterUrl && (
+      <section class="section">
+        <div class="wrap">
+          <div class="newsletter">
+            <div>
+              <h2>Stay in the loop</h2>
+              <p>Get updates on new programs, stories, resources, and upcoming events.</p>
+            </div>
+            <a class="btn btn--primary" href={siteConfig.newsletterUrl} rel="noopener">
+              Sign up
+            </a>
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  /* ------------------------------------------------------------- hero -- */
+  .hero {
+    padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .hero__inner {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 56rem) {
+    /* The illustration carries more of the message than the copy does, so it
+       takes the larger share. */
+    .hero__inner {
+      grid-template-columns: 0.8fr 1.2fr;
+    }
+  }
+
+  /* The hero column is narrower than a full-width heading assumes, so the
+     headline is capped to keep "Children direct the AI" on one line instead of
+     breaking to an orphaned "pen." */
+  .hero h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+  }
+
+  /* The three things a teacher checks before reading any further: cost, age
+     range, and how much of their term it takes. */
+  .hero__facts {
+    list-style: none;
+    margin: 1.4rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+  }
+
+  .hero__facts li {
+    background: var(--color-lavender-tint);
+    color: var(--color-purple-text);
+    font-weight: 800;
+    font-size: 0.88rem;
+    padding: 0.3rem 0.85rem;
+    border-radius: var(--radius-button);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  /* Slightly tighter than the default pill so both calls to action stay on one
+     line in the hero's narrower column. */
+  .hero__actions .btn {
+    padding-inline: 1.3rem;
+  }
+
+  /* The illustration runs on past its column toward the viewport edge, so it
+     can be large while the copy stays aligned with the header and with every
+     section below. Never wider than the 1672px original, so it cannot upscale. */
+  @media (min-width: 56rem) {
+    .hero__art {
+      width: calc(100% + max(0px, (100vw - var(--content-width)) / 2 - var(--gutter)));
+      max-width: 60rem;
+    }
+  }
+
+  .hero__art img {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* ------------------------------------------------------ credibility -- */
+  /* Names only, no logos: university marks are trademarks and would need
+     permission, and the names carry the signal on their own. */
+  .trust {
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding-block: 1.4rem;
+    background: var(--color-surface);
+  }
+
+  .trust p {
+    margin: 0;
+    text-align: center;
+    color: var(--color-ink);
+    font-weight: 700;
+    font-size: clamp(1.05rem, 1.9vw, 1.3rem);
+  }
+
+  /* The names carry the signal, so they sit a step above the framing words. */
+  .trust strong {
+    color: var(--color-purple-text);
+    font-weight: 800;
+  }
+
+  /* ------------------------------------------------------ how it works -- */
+  .how__title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .how {
+    /* One shared cycle for the whole row; StepArt inherits it. */
+    --cycle: 10s;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    text-align: center;
+  }
+
+  /* The art, then the heading, then the body — a small cascade as each step
+     takes its turn. Opacity never drops, so contrast is unaffected. */
+  .how__item :global(.art) {
+    animation: step-lift var(--cycle) ease-out infinite;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  .how__item h3 {
+    animation: step-lift var(--cycle) ease-out infinite;
+    animation-delay: calc(var(--step-delay, 0s) + 0.1s);
+  }
+
+  /* A highlighter pass over the words as each step takes its turn — drawn as a
+     background gradient so nothing is layered over the text and contrast is
+     never reduced. Swipes on from the left, holds, then wipes off to the right. */
+  .mark {
+    padding: 0.05em 0.2em;
+    border-radius: 4px;
+    background-image: linear-gradient(#ffdf8a, #ffdf8a);
+    background-repeat: no-repeat;
+    background-position: 0% 82%;
+    background-size: 0% 0.62em;
+    animation: step-mark var(--cycle) ease-out infinite;
+    animation-delay: calc(var(--step-delay, 0s) + 0.08s);
+  }
+
+  @keyframes step-mark {
+    0%   { background-size: 0% 0.62em; background-position-x: 0%; }
+    9%   { background-size: 100% 0.62em; background-position-x: 0%; }
+    24%  { background-size: 100% 0.62em; background-position-x: 0%; }
+    33%  { background-size: 0% 0.62em; background-position-x: 100%; }
+    100% { background-size: 0% 0.62em; background-position-x: 100%; }
+  }
+
+  .how__item p {
+    animation: step-lift var(--cycle) ease-out infinite;
+    animation-delay: calc(var(--step-delay, 0s) + 0.18s);
+  }
+
+  @keyframes step-lift {
+    0%   { transform: none; }
+    5%   { transform: translateY(-7px); }
+    14%  { transform: none; }
+    100% { transform: none; }
+  }
+
+  @media (min-width: 44rem) {
+    .how {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 70rem) {
+    .how {
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(1.25rem, 2.5vw, 2rem);
+    }
+  }
+
+  .how__item h3 {
+    margin-top: 1.1rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .how__item p {
+    color: var(--color-muted);
+    margin: 0 auto;
+    max-width: 28ch;
+  }
+
+  /* ---------------------------------------------------------- curriculum -- */
+  .curr__head {
+    text-align: center;
+    max-width: 52ch;
+    margin-inline: auto;
+  }
+
+  .curr__head p {
+    margin-bottom: 0;
+  }
+
+  .curr__list {
+    list-style: none;
+    margin: clamp(2rem, 4vw, 2.75rem) 0 0;
+    padding: 0;
+  }
+
+  .curr__item {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .curr__item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .curr__item a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+
+  .curr__frame {
+    display: block;
+    aspect-ratio: 3 / 2;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .curr__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .curr__title {
+    display: block;
+    padding: 0.9rem 1.1rem 1.1rem;
+    font-weight: 800;
+    font-size: 0.98rem;
+    line-height: 1.35;
+  }
+
+  .curr__cta {
+    margin: clamp(1.75rem, 3vw, 2.25rem) 0 0;
+    text-align: center;
+  }
+
+  /* --------------------------------------------------------- training -- */
+  /* A solid purple band. This is the section educators are meant to act on, so
+     it gets the strongest treatment on the page and cleanly separates the
+     lavender "what can your students do?" band above from the cream programs
+     section below — the two previously ran together. */
+  .training-band {
+    background: var(--color-purple-dark);
+    color: #fff;
+    /* Taller than a standard section; this one carries weight. */
+    padding-block: clamp(3.5rem, 8vw, 6.5rem);
+  }
+
+  .training {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  @media (min-width: 60rem) {
+    .training--media {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .training__media img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-card);
+    box-shadow: 0 18px 44px rgb(30 16 52 / 32%);
+  }
+
+  .training__body {
+    max-width: 40rem;
+  }
+
+  /* Until an illustration is supplied there is no second column to balance
+     against, so the band centers rather than leaving a void on the right. */
+  .training:not(.training--media) .training__body {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .training:not(.training--media) .training__lede {
+    margin-inline: auto;
+  }
+
+  .training:not(.training--media) .training__none {
+    justify-content: center;
+    text-align: left;
+  }
+
+  .training-band .eyebrow {
+    color: #d9c9f7;
+  }
+
+  .training-band h2 {
+    color: #fff;
+    font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+    margin-bottom: 0.75rem;
+  }
+
+  .training__lede {
+    font-size: 1.08rem;
+    color: #ece4fb;
+    max-width: 46ch;
+    margin-bottom: 1.75rem;
+  }
+
+  .training__none {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 1.15rem 1.35rem;
+    background: rgb(255 255 255 / 12%);
+    border: 1px solid rgb(255 255 255 / 26%);
+    border-radius: var(--radius-card);
+    color: #f1eafc;
+    font-size: 0.98rem;
+  }
+
+  .training__none svg {
+    flex: none;
+    margin-top: 0.15rem;
+    color: #d9c9f7;
+  }
+
+  .training__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .training__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgb(255 255 255 / 12%);
+    border: 1px solid rgb(255 255 255 / 22%);
+    color: #fff;
+    border-radius: var(--radius-button);
+    padding: 0.6rem 1.1rem;
+    font-weight: 700;
+    font-size: 0.98rem;
+  }
+
+  .training__list svg {
+    flex: none;
+    color: #d9c9f7;
+  }
+
+  /* A filled purple button would vanish against the band. */
+  .training__cta {
+    background: #fff;
+    color: var(--color-purple-dark);
+  }
+
+  .training__cta:hover {
+    background: var(--color-lavender-tint);
+    color: var(--color-purple-dark);
+  }
+
+  /* --------------------------------------------------------- programs -- */
+  .programs {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+
+  @media (min-width: 64rem) {
+    .programs {
+      grid-template-columns: 18rem 1fr;
+      align-items: start;
+    }
+  }
+
+  .programs__intro .btn {
+    margin-top: 0.5rem;
+  }
+
+  .program-card {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--color-lavender-soft);
+  }
+
+  .program-card__body h3 {
+    margin-bottom: 0.15rem;
+  }
+
+  .program-card__body h3 a {
+    text-decoration: none;
+  }
+
+  .program-card__body h3 a:hover {
+    text-decoration: underline;
+  }
+
+  .program-card__date {
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .program-card__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .program-card__covers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(7.5rem, 45%), 1fr));
+    gap: 0.75rem;
+    margin-top: auto;
+  }
+
+  .program-card__none {
+    margin: auto 0 0;
+    font-size: 0.92rem;
+    padding: 0.9rem;
+    border: 1px dashed var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+  }
+
+  /* ----------------------------------------------------- destinations -- */
+  .destinations {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Four cards sit comfortably in one row at desktop width; auto-fit handles
+     the wrap below that. */
+  @media (min-width: 68rem) {
+    .destinations {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .destination {
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .destination__icon {
+    display: inline-flex;
+    color: var(--color-purple-dark);
+    margin-bottom: 0.35rem;
+  }
+
+  .destination__title {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .destination p {
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .destination__cta {
+    margin-top: auto;
+    padding-top: 0.9rem;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .destination__cta:hover {
+    text-decoration: underline;
+  }
+
+  /* ------------------------------------------------------- newsletter -- */
+  .newsletter {
+    background: var(--color-purple);
+    color: #fff;
+    border-radius: var(--radius-card);
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .newsletter h2 {
+    margin-bottom: 0.25rem;
+  }
+
+  .newsletter p {
+    margin: 0;
+    opacity: 0.92;
+  }
+
+  .newsletter .btn--primary {
+    background: #fff;
+    color: var(--color-purple-dark);
+  }
+</style>

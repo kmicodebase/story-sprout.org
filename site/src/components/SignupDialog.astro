@@ -1,0 +1,421 @@
+---
+/**
+ * Webinar sign-up. Each session is a button; choosing one opens a modal with
+ * name, email and an optional organization.
+ *
+ * The buttons stay inert until /api/signup confirms sign-ups can actually be
+ * recorded — nobody is shown a form that would drop their details. Until then a
+ * plain "email us" line takes their place.
+ *
+ * Native <dialog> supplies the focus trap, Escape-to-close and inert
+ * background, so this ships a few hundred bytes of script rather than a
+ * library.
+ */
+interface Session {
+  id: string
+  label: string
+  /** e.g. "45 min" — shown at the point of decision, so the ask is concrete. */
+  duration?: string
+  iso: string
+}
+
+interface Props {
+  sessions: Session[]
+}
+
+const { sessions } = Astro.props
+---
+
+<div class="signup" data-signup>
+  <ul class="signup__slots" data-signup-slots hidden>
+    {
+      sessions.map((session) => (
+        <li>
+          <button
+            type="button"
+            class="signup__slot"
+            data-signup-open
+            data-session-id={session.id}
+            data-session-label={session.label}
+          >
+            <span class="signup__slot-date">
+              <time datetime={session.iso}>{session.label}</time>
+              {session.duration && <span class="signup__slot-len">{session.duration}</span>}
+            </span>
+            <span class="signup__slot-cta">Sign up</span>
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+
+  {/* Shown until the endpoint reports it can record sign-ups. */}
+  <ul class="signup__slots signup__slots--plain" data-signup-plain>
+    {
+      sessions.map((session) => (
+        <li class="signup__slot signup__slot--static">
+          <span class="signup__slot-date">
+            <time datetime={session.iso}>{session.label}</time>
+            {session.duration && <span class="signup__slot-len">{session.duration}</span>}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="signup__fallback" data-signup-fallback>
+    To join a session, email{' '}
+    <a href="mailto:kmi.aistorybooks@gmail.com">kmi.aistorybooks@gmail.com</a>.
+  </p>
+
+  <dialog class="signup__dialog" data-signup-dialog aria-labelledby="signup-heading">
+    <form method="dialog" class="signup__close-row">
+      <button type="submit" class="signup__close" aria-label="Close sign-up">×</button>
+    </form>
+
+    <h2 id="signup-heading">Sign up for a session</h2>
+    <p class="signup__meta">Free · 45 minutes · online. You'll get the joining link by email.</p>
+    <p class="signup__chosen" data-signup-chosen></p>
+
+    <form class="signup__form" method="POST" action="/api/signup" data-signup-form>
+      <input type="hidden" name="sessionId" data-field-session-id />
+      <input type="hidden" name="sessionLabel" data-field-session-label />
+
+      <label class="signup__field">
+        <span>Your name</span>
+        <input type="text" name="name" required autocomplete="name" />
+      </label>
+
+      <label class="signup__field">
+        <span>Email address</span>
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+
+      <label class="signup__field">
+        <span>School or organization <em>(optional)</em></span>
+        <input type="text" name="org" autocomplete="organization" />
+      </label>
+
+      {/* Hidden from people, tempting to bots. */}
+      <div class="signup__trap" aria-hidden="true">
+        <label>Company<input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <button type="submit" class="btn btn--primary signup__submit">Sign up</button>
+
+      <p class="signup__note">
+        We use your details only to send you the joining link. See our{' '}
+        <a href="/privacy/">privacy notice</a>.
+      </p>
+
+      <p class="signup__status" role="status" aria-live="polite" data-signup-status></p>
+    </form>
+  </dialog>
+</div>
+
+<style>
+  .signup {
+    margin-top: 1.5rem;
+  }
+
+  .signup__slots {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .signup__slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font: inherit;
+    text-align: left;
+    background: rgb(255 255 255 / 12%);
+    border: 1px solid rgb(255 255 255 / 24%);
+    color: #fff;
+    border-radius: var(--radius-button);
+    padding: 0.75rem 0.85rem 0.75rem 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+
+  button.signup__slot:hover {
+    background: rgb(255 255 255 / 22%);
+    border-color: rgb(255 255 255 / 45%);
+  }
+
+  .signup__slot--static {
+    cursor: default;
+  }
+
+  .signup__slot-date {
+    font-weight: 700;
+    font-size: 0.98rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .signup__slot-len {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: #e0d3f8;
+  }
+
+  .signup__slot-cta {
+    flex: none;
+    background: #fff;
+    color: var(--color-purple-dark);
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--radius-button);
+  }
+
+  .signup__fallback {
+    margin: 1rem 0 0;
+    font-size: 0.95rem;
+    color: #ece4fb;
+  }
+
+  .signup__fallback a {
+    color: #fff;
+  }
+
+  /* ------------------------------------------------------------ dialog -- */
+  .signup__dialog {
+    width: min(30rem, 94vw);
+    padding: 0 1.75rem 1.75rem;
+    border: none;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .signup__dialog::backdrop {
+    background: rgb(45 32 26 / 55%);
+  }
+
+  .signup__close-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.6rem;
+  }
+
+  .signup__close {
+    font: inherit;
+    font-size: 1.6rem;
+    line-height: 1;
+    background: none;
+    border: none;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 8px;
+  }
+
+  .signup__close:hover {
+    color: var(--color-ink);
+  }
+
+  .signup__dialog h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.3rem;
+  }
+
+  .signup__meta {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    margin: 0 0 0.15rem;
+  }
+
+  .signup__chosen {
+    color: var(--color-purple-text);
+    font-weight: 800;
+    margin: 0 0 1.25rem;
+  }
+
+  .signup__field {
+    display: block;
+    margin-bottom: 0.9rem;
+  }
+
+  .signup__field > span {
+    display: block;
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .signup__field em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+
+  .signup__field input {
+    width: 100%;
+    font: inherit;
+    font-size: 1rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 12px;
+    border: 2px solid var(--color-border);
+    background: #fff;
+    color: var(--color-ink);
+  }
+
+  .signup__field input:focus-visible {
+    outline: 3px solid var(--color-purple);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+
+  .signup__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .signup__submit {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.4rem;
+  }
+
+  .signup__submit[disabled] {
+    opacity: 0.65;
+    cursor: default;
+  }
+
+  .signup__note {
+    margin: 0.85rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  .signup__status {
+    margin: 0.6rem 0 0;
+    font-weight: 700;
+    min-height: 1.4em;
+  }
+
+  .signup__status[data-state='ok'] {
+    color: var(--color-green);
+  }
+
+  .signup__status[data-state='error'] {
+    color: #a33718;
+  }
+
+  @media (max-width: 30rem) {
+    .signup__slot {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { capture } from '../lib/analytics'
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-signup]')) {
+    const slots = root.querySelector<HTMLElement>('[data-signup-slots]')
+    const plain = root.querySelector<HTMLElement>('[data-signup-plain]')
+    const fallback = root.querySelector<HTMLElement>('[data-signup-fallback]')
+    const dialog = root.querySelector<HTMLDialogElement>('[data-signup-dialog]')
+    const form = root.querySelector<HTMLFormElement>('[data-signup-form]')
+    const chosen = root.querySelector<HTMLElement>('[data-signup-chosen]')
+    const status = root.querySelector<HTMLElement>('[data-signup-status]')
+    if (!slots || !plain || !fallback || !dialog || !form || !chosen || !status) continue
+    if (typeof dialog.showModal !== 'function') continue
+
+    // Only offer sign-up once the endpoint can actually record it.
+    fetch('/api/signup', { headers: { accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : { configured: false }))
+      .then((info) => {
+        if (!(info as { configured?: boolean })?.configured) return
+        slots.hidden = false
+        plain.hidden = true
+        fallback.hidden = true
+      })
+      .catch(() => {
+        /* Leave the plain list and the email fallback in place. */
+      })
+
+    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-signup-open]')) {
+      button.addEventListener('click', () => {
+        const id = button.dataset.sessionId ?? ''
+        const label = button.dataset.sessionLabel ?? ''
+
+        // The session id is a content slug (training-2026-09-06) — a date, not a
+        // person. Both events fire here: clicking a session both is the call to
+        // action and opens the form.
+        capture('training_cta_clicked', { cta_location: 'training_band', training_date: id })
+        capture('training_registration_started', { training_date: id }, { once: `start:${id}` })
+        form.querySelector<HTMLInputElement>('[data-field-session-id]')!.value = id
+        form.querySelector<HTMLInputElement>('[data-field-session-label]')!.value = label
+        chosen.textContent = label
+        status.textContent = ''
+        status.removeAttribute('data-state')
+        dialog.showModal()
+      })
+    }
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close()
+    })
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      const button = form.querySelector<HTMLButtonElement>('[type=submit]')
+      const data = new FormData(form)
+
+      status.removeAttribute('data-state')
+      status.textContent = 'Sending…'
+      if (button) button.disabled = true
+
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(data)),
+        })
+        const body = (await res.json().catch(() => ({}))) as {
+          ok?: boolean
+          error?: string
+        }
+
+        if (res.ok && body?.ok) {
+          // Confirmed by the endpoint, which only returns ok once the row is in
+          // the sheet. `once` stops a resubmit or a double-tap inflating it.
+          capture(
+            'training_registration_completed',
+            { training_date: String(data.get('sessionId') ?? '') },
+            { once: `done:${data.get('sessionId')}` }
+          )
+          form.reset()
+          status.setAttribute('data-state', 'ok')
+          status.textContent = "You're signed up — we'll email you the joining link."
+        } else {
+          status.setAttribute('data-state', 'error')
+          status.textContent =
+            body?.error ?? 'Something went wrong. Please email kmi.aistorybooks@gmail.com.'
+        }
+      } catch {
+        status.setAttribute('data-state', 'error')
+        status.textContent = 'Could not reach the server. Please email kmi.aistorybooks@gmail.com.'
+      } finally {
+        if (button) button.disabled = false
+      }
+    })
+  }
+</script>

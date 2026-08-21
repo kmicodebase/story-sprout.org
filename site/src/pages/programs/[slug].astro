@@ -1,0 +1,100 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import StoryCard from '../../components/StoryCard.astro'
+import { getPrograms, getStories, getCurriculum } from '../../lib/content'
+
+export const getStaticPaths = (async () => {
+  const programs = await getPrograms()
+  return programs.map((program) => ({ params: { slug: program.id }, props: { program } }))
+}) satisfies GetStaticPaths
+
+const { program } = Astro.props
+const { Content } = await render(program)
+
+const stories = (await getStories()).filter((s) => s.data.program === program.id)
+const curriculum = await getCurriculum()
+---
+
+<BaseLayout title={program.data.title} description={program.data.summary}>
+  <section class="section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/programs/">Programs</a>
+        <span aria-hidden="true">/</span>
+        <span>{program.data.title}</span>
+      </nav>
+
+      <h1>{program.data.title}</h1>
+      <p class="program__date">
+        {[program.data.dateDisplay, program.data.formatDisplay].filter(Boolean).join(' · ')}
+      </p>
+      <p class="lede">{program.data.summary}</p>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <h2 class="section-title">Storybooks from this session</h2>
+      {
+        stories.length === 0 ? (
+          <p class="muted">No storybooks from this session have been published yet.</p>
+        ) : (
+          <ul class="grid grid--auto story-grid">
+            {stories.map((story) => (
+              <li>
+                <StoryCard story={story} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        /* Curriculum is currently a single shared set rather than per-session,
+           so link to the listing instead of implying a session-specific pack. */
+        curriculum.length > 0 && (
+          <p class="related">
+            <a href="/curriculum/">See the curriculum used in Story Sprout sessions →</a>
+          </p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+  }
+
+  .program__date {
+    color: var(--color-muted);
+    font-weight: 700;
+    margin-top: -0.25rem;
+  }
+
+  .section-title {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .story-grid {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+
+  .related {
+    margin-top: 2.5rem;
+    font-weight: 700;
+  }
+</style>

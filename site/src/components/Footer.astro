@@ -1,0 +1,186 @@
+---
+import Logo from './Logo.astro'
+import { siteConfig } from '../config/site'
+
+const year = new Date().getFullYear()
+
+const columns = [
+  {
+    heading: 'Explore',
+    links: [
+      { label: 'About', href: '/about/' },
+      { label: 'Curriculum', href: '/curriculum/' },
+      { label: 'Programs', href: '/programs/' },
+      { label: 'Stories', href: '/stories/' },
+      { label: 'Research & Code', href: '/research/' },
+    ],
+  },
+  {
+    heading: 'For educators',
+    links: [
+      { label: 'Curriculum & resources', href: '/curriculum/' },
+      { label: 'About the program', href: '/about/' },
+    ],
+  },
+  {
+    heading: 'Take part',
+    links: [
+      { label: 'Try Story Sprout Studio', href: siteConfig.platformUrl },
+      { label: 'Donate', href: '/donate/' },
+    ],
+  },
+]
+---
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <div class="site-footer__brand">
+      <Logo />
+      <p class="site-footer__blurb">{siteConfig.description}</p>
+      <p class="site-footer__org">
+        A program of <a href={siteConfig.parentOrg.url} rel="noopener">{siteConfig.parentOrg.name}</a>.
+      </p>
+      {
+        /* Rendered only when a real address is configured — never a placeholder. */
+        siteConfig.contactEmail && (
+          <p class="site-footer__contact">
+            <a href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>
+          </p>
+        )
+      }
+    </div>
+
+    {
+      columns.map((column) => (
+        <nav class="site-footer__col" aria-label={column.heading}>
+          <h2 class="site-footer__heading">{column.heading}</h2>
+          <ul>
+            {column.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  rel={link.href.startsWith('http') ? 'noopener' : undefined}
+                  data-cta={link.href === siteConfig.platformUrl ? 'studio' : undefined}
+                  data-cta-location={link.href === siteConfig.platformUrl ? 'footer' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+
+  <div class="wrap site-footer__legal">
+    <p>
+      {year} {siteConfig.parentOrg.name}., a {siteConfig.parentOrg.taxStatusDisplay}.
+      <span class="site-footer__license">
+        Curriculum shared under{' '}
+        <a href={siteConfig.license.url} rel="license noopener">{siteConfig.license.short}</a>.</span>
+    </p>
+    <ul>
+      <li><a href="/privacy/">Privacy</a></li>
+      <li><a href="/accessibility/">Accessibility</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-lavender-soft);
+    border-top: 1px solid var(--color-border);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    /* No margin-top: every page ends in a .section, which already carries a
+       generous padding-bottom. Adding a gap here just leaves dead space. */
+  }
+
+  .site-footer__inner {
+    display: grid;
+    gap: 2rem clamp(1.5rem, 4vw, 3rem);
+    grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  }
+
+  .site-footer__brand {
+    /* The description column earns a little more room than the link columns. */
+    grid-column: span 1;
+    max-width: 28rem;
+  }
+
+  @media (min-width: 60rem) {
+    .site-footer__inner {
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    }
+  }
+
+  .site-footer__blurb {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    margin-top: 0.9rem;
+  }
+
+  .site-footer__org,
+  .site-footer__contact {
+    font-size: 0.95rem;
+    color: var(--color-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .site-footer__heading {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .site-footer__col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer__col li + li {
+    margin-top: 0.5rem;
+  }
+
+  .site-footer__col a {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .site-footer__col a:hover {
+    text-decoration: underline;
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--color-border);
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-block: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+  }
+
+  .site-footer__legal p {
+    margin: 0;
+  }
+
+  .site-footer__license {
+    display: block;
+  }
+
+  .site-footer__legal ul {
+    list-style: none;
+    display: flex;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+  }
+</style>

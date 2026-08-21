@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import StoryCard from '../../components/StoryCard.astro'
+import EmptyState from '../../components/EmptyState.astro'
+import { getPrograms, getStories } from '../../lib/content'
+
+const stories = await getStories()
+const programs = await getPrograms()
+
+// Group by program so a visitor can see which session a book came from.
+const groups = programs
+  .map((program) => ({
+    program,
+    items: stories.filter((story) => story.data.program === program.id),
+  }))
+  .filter((group) => group.items.length > 0)
+---
+
+<BaseLayout
+  title="Stories"
+  description="Picture books written and illustrated by children in Story Sprout programs."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Story library</p>
+      <h1>Books by young authors</h1>
+      <p class="lede">
+        Every book here was written by children aged 7–13 over an eight-session class. They wrote
+        the words, described the pictures they wanted, and decided when each page looked right.
+      </p>
+
+      {
+        groups.length === 0 ? (
+          <EmptyState title="No storybooks published yet">
+            <p>Books from Story Sprout sessions will appear here once they are published.</p>
+          </EmptyState>
+        ) : (
+          groups.map((group) => (
+            <div class="story-group">
+              <h2>
+                <a href={`/programs/${group.program.id}/`}>{group.program.data.title}</a>
+              </h2>
+              {group.program.data.formatDisplay && (
+                <p class="story-group__format">{group.program.data.formatDisplay}</p>
+              )}
+              <ul class="grid grid--auto story-grid">
+                {group.items.map((story) => (
+                  <li>
+                    <StoryCard story={story} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .story-group {
+    margin-top: 3rem;
+  }
+
+  .story-group__format {
+    color: var(--color-muted);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: -0.25rem 0 0;
+  }
+
+  .story-group h2 a {
+    text-decoration: none;
+  }
+
+  .story-group h2 a:hover {
+    text-decoration: underline;
+  }
+
+  .story-grid {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+</style>

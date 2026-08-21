@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { siteConfig } from '../config/site'
+---
+
+<BaseLayout title="Accessibility" description="How this site is built to be usable by everyone.">
+  <section class="section">
+    <div class="wrap prose">
+      <p class="eyebrow">Accessibility</p>
+      <h1>Accessibility statement</h1>
+
+      <p class="lede">
+        This site aims to meet WCAG 2.1 Level AA. It is built for children, families, and
+        educators, so it should work on a phone, with a keyboard, and with a screen reader.
+      </p>
+
+      <h2>What we have done</h2>
+      <ul>
+        <li>Semantic landmarks and one clear heading structure per page.</li>
+        <li>A skip-to-content link as the first focusable element.</li>
+        <li>Keyboard access throughout, including the mobile menu, which announces whether it is expanded.</li>
+        <li>Visible focus indicators on every interactive element.</li>
+        <li>Text and interface colors checked for contrast against their backgrounds.</li>
+        <li>Meaningful alt text on images; decorative artwork is hidden from screen readers.</li>
+        <li>Support for reduced-motion preferences.</li>
+        <li>No autoplaying audio or video, and no information conveyed by color alone.</li>
+        <li>Storybook PDFs are always available as a plain download link, not only through an embedded viewer.</li>
+      </ul>
+
+      <h2>Known limitations</h2>
+      <ul>
+        <li>
+          Storybooks are published as PDFs produced during workshop sessions. These are image-based
+          and are not screen-reader accessible. If you need a book in another format, please ask.
+        </li>
+      </ul>
+
+      <h2>Telling us about a problem</h2>
+      <p>
+        If something on this site is hard to use, contact{' '}
+        <a href={siteConfig.parentOrg.url} rel="noopener">{siteConfig.parentOrg.name}</a>. We want
+        to know.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>Note for the project team.</strong> Add a direct contact address here before
+          publishing, and re-check this page after any design change.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .note {
+    border: 1px dashed var(--color-border);
+    background: var(--color-lavender-soft);
+    border-radius: var(--radius-card);
+    padding: 1.25rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--color-muted);
+  }
+
+  .note p {
+    margin: 0;
+  }
+</style>
