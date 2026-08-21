@@ -122,8 +122,19 @@ function scrub(props: Record<string, unknown>): Record<string, unknown> {
     if (/url|referr|pathname|title|search|utm_|host$/i.test(key) && !ALLOWED_PROPS.has(key)) continue
     out[key] = value
   }
-  // Tell PostHog not to store an IP address for this event.
+  /**
+   * Two separate switches, and both are needed.
+   *
+   * `$ip: null` stops the address being stored as a property. It does NOT stop
+   * GeoIP enrichment: PostHog resolves the request IP server-side before that
+   * property is ever read, and attaches city, postal code, latitude, longitude,
+   * region and timezone. On a site for 7–13 year olds, a postcode and a
+   * lat/long are exactly what we must not be keeping.
+   *
+   * `$geoip_disable: true` is what actually turns the enrichment off.
+   */
   out.$ip = null
+  out.$geoip_disable = true
   return out
 }
 

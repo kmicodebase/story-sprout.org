@@ -54,7 +54,16 @@ groups are removed:
 - **`$raw_user_agent`** — `$browser`, `$os` and `$device_type` already answer
   "does this work on a school Chromebook" without the fingerprint.
 
-`$ip` is set to `null`, which tells PostHog not to store an IP for the event.
+Location is switched off with **two** properties, and both are needed:
+
+- `$ip: null` stops the address being stored as a property.
+- `$geoip_disable: true` stops the enrichment. Without it PostHog resolves the
+  request IP server-side — before that property is ever read — and attaches
+  city, postal code, latitude, longitude, region and timezone. On a site for
+  7–13 year olds a postcode and a lat/long are precisely what must not be kept.
+
+Setting only the first is a plausible-looking mistake that leaves full location
+data in the project. `npm run audit:analytics` asserts on both.
 
 The denylist was derived from an actual captured payload, not from
 documentation. **Re-run `npm run audit:analytics` after upgrading posthog-js** —
@@ -145,7 +154,22 @@ no organization, no book title, no URL properties, no injected markup, `$ip`
 null, no identified person, no session-recording payload, and nothing at all
 captured under GPC.
 
-Two caveats worth knowing when testing by hand:
+### Why a hand test can see nothing while the site is working
+
+Paste `docs/analytics-selfcheck.js` into the browser console on
+https://story-sprout.org/. It reports which of the following applies.
+
+In order of how often it is the answer:
+
+1. **An ad blocker.** uBlock Origin, Brave shields, Firefox strict mode and most
+   corporate DNS filters all block `us.i.posthog.com` by default. The page works
+   perfectly; the requests never leave. This is by far the most common cause.
+2. **Global Privacy Control or Do Not Track.** If the browser sends either, this
+   site captures *nothing at all* — deliberately, and the privacy notice says so.
+   Anyone testing a children's privacy setup is unusually likely to have this on.
+3. **A different property.** Only story-sprout.org is instrumented.
+
+Two further caveats:
 
 - **PostHog silently discards events from user agents it classifies as bots**,
   and plain headless Chrome is one. Both scripts override the user agent.
