@@ -20,6 +20,9 @@ export const siteConfig = {
    */
   platformUrl: 'https://kmicodebase.github.io/kmi_story_sprout_studio/workshop-plugin.html',
 
+  /** Story Sprout Studio's educator-facing view, linked from the header. */
+  teacherUrl: 'https://kmicodebase.github.io/kmi_story_sprout_studio/teacher.html',
+
   /** The outgoing microsite this site replaces. */
   legacyUrl: 'https://storysprout.kindnessmattersinc.org/',
 
