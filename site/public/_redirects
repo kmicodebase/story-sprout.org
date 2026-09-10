@@ -12,3 +12,8 @@
 /news/*    /  301
 /events    /  301
 /events/*  /  301
+
+# Short link to share the Blog section. Exact matches only — /blog/<slug>/ is
+# where internal posts live, so there must be no /blog/* splat here.
+/blog      /research/#blog  301
+/blog/     /research/#blog  301
