@@ -1,0 +1,19 @@
+---
+/**
+ * Icon for a recorded training: a video screen with a play button and a small
+ * sprout on its corner. Drawn for the white video cards in the training band;
+ * the strokes are purple, so it disappears on the purple band itself.
+ */
+interface Props {
+  size?: number
+}
+const { size = 48 } = Astro.props
+---
+
+<svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+  <rect x="5" y="12" width="38" height="26" rx="6" fill="#efe9fd" stroke="#7653c6" stroke-width="2.6"></rect>
+  <path d="M20 19.5v11.5l10-5.75z" fill="#7653c6" stroke="#7653c6" stroke-width="2" stroke-linejoin="round"></path>
+  <path d="M17 42h14" stroke="#7653c6" stroke-width="2.6" stroke-linecap="round"></path>
+  <path d="M35 12c0-4 1.5-6.5 5-7.5-.2 3.8-2 6-5 7.5z" fill="#4f9462"></path>
+  <path d="M35 12c-.3-3-1.8-5-4.7-5.6.3 3 1.9 4.8 4.7 5.6z" fill="#7cbf8b"></path>
+</svg>

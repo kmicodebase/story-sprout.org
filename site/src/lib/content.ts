@@ -76,7 +76,7 @@ const RESEARCH_STATUS_LABELS: Record<string, string> = {
 const STATUS_PREPOSITIONS: Record<string, string> = {
   submitted: 'to',
   'under-review': 'at',
-  accepted: 'at',
+  accepted: 'to',
   published: 'in',
 }
 

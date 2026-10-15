@@ -3,10 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 import StoryCard from '../components/StoryCard.astro'
 import StepArt from '../components/StepArt.astro'
 import SignupDialog from '../components/SignupDialog.astro'
+import TrainingVideoIcon from '../components/TrainingVideoIcon.astro'
 import { siteConfig } from '../config/site'
 import { getCurriculum, getPrograms, getStories, getEvents, splitEvents } from '../lib/content'
 import { assetUrl } from '../lib/assets'
-import { FileText, Users, CalendarDays, Heart } from '@lucide/astro'
+import { FileText, Users, CalendarDays, Heart, ExternalLink } from '@lucide/astro'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -28,6 +29,9 @@ const stories = await getStories()
 // none is scheduled. It never implies a session exists.
 const { upcoming } = splitEvents(await getEvents())
 const nextSessions = upcoming.slice(0, 4)
+// Recordings sit under the live sessions, so the band still offers something
+// when nothing is scheduled.
+const { trainingVideos } = siteConfig
 
 // Derived, not hardcoded: if a session's end time changes the label follows.
 const minutes = (e: (typeof nextSessions)[number]) =>
@@ -140,8 +144,8 @@ const storiesFor = (programId: string) =>
   <section class="trust">
     <div class="wrap">
       <p>
-        Designed with researchers from <strong>MIT</strong>,{' '}
-        <strong>Carnegie Mellon</strong> and <strong>UC Irvine</strong>
+        Guided by the professors from <strong>Carnegie Mellon</strong>,{' '}
+        <strong>MIT</strong> and <strong>UC Irvine</strong>
       </p>
     </div>
   </section>
@@ -271,9 +275,11 @@ const storiesFor = (programId: string) =>
         )
       }
 
-      <div class="training__body">
-        <p class="eyebrow">For educators &amp; volunteers</p>
-        <h2>Training webinars</h2>
+      <div class="training__intro">
+        <div class="training__heading">
+          <p class="eyebrow">For educators &amp; volunteers</p>
+          <h2>Training webinars</h2>
+        </div>
         <p class="training__lede">
           Story Sprout runs webinars for educators and volunteers who want to bring the
           program to their own classroom or community group. In 45 minutes we walk through
@@ -281,8 +287,11 @@ const storiesFor = (programId: string) =>
           leave with the slides you need to run it. The training, the curriculum, the studio
           and the AI illustrations are all free.
         </p>
+      </div>
 
+      <div class="training__actions">
         <div class="training__next">
+          {trainingVideos.length > 0 && <p class="training__label">Join a live session</p>}
           {
             nextSessions.length === 0 ? (
               <p class="training__none">
@@ -301,6 +310,32 @@ const storiesFor = (programId: string) =>
             )
           }
         </div>
+
+        {
+          trainingVideos.length > 0 && (
+            <div class="training__videos">
+              <p class="training__label">Or watch anytime</p>
+              <ul class="training__video-list">
+                {trainingVideos.map((video) => (
+                  <li>
+                    <a class="training__video" href={video.url} target="_blank" rel="noopener">
+                      <TrainingVideoIcon />
+                      <span class="training__video-text">
+                        <span class="training__video-title">{video.title}</span>
+                        <span class="training__video-desc">{video.description}</span>
+                      </span>
+                      <span class="training__video-go">
+                        Watch
+                        <ExternalLink size={15} aria-hidden="true" />
+                        <span class="visually-hidden">(opens Google Drive in a new tab)</span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
       </div>
     </div>
   </section>
@@ -610,15 +645,57 @@ const storiesFor = (programId: string) =>
     padding-block: clamp(3.5rem, 8vw, 6.5rem);
   }
 
+  /* Mobile: picture, then intro, then dates. On desktop the intro runs across
+     the top — heading over the picture, lede over the dates — and the picture
+     sits beside only the dates and recordings, which are about its height.
+     Beside the whole text column it looked small. */
   .training {
     display: grid;
-    gap: clamp(2rem, 5vw, 4rem);
-    align-items: center;
+    gap: clamp(1.75rem, 4vw, 2.75rem) clamp(2rem, 5vw, 4rem);
+    grid-template-areas: 'media' 'intro' 'actions';
+  }
+
+  .training__media {
+    grid-area: media;
+  }
+
+  .training__intro {
+    grid-area: intro;
+  }
+
+  .training__actions {
+    grid-area: actions;
   }
 
   @media (min-width: 60rem) {
+    /* Each column stacks on its own: heading then picture on the left, lede
+       then dates on the right, so neither side leaves a gap waiting for the
+       other. */
     .training--media {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.25fr 1fr;
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas:
+        'heading lede'
+        'media lede'
+        'media actions';
+      align-items: start;
+    }
+
+    .training--media .training__intro {
+      display: contents;
+    }
+
+    .training--media .training__heading {
+      grid-area: heading;
+    }
+
+    .training--media .training__heading :global(h2) {
+      margin-bottom: 0;
+    }
+
+    .training--media .training__lede {
+      grid-area: lede;
+      max-width: none;
     }
   }
 
@@ -629,14 +706,16 @@ const storiesFor = (programId: string) =>
     box-shadow: 0 18px 44px rgb(30 16 52 / 32%);
   }
 
-  .training__body {
-    max-width: 40rem;
-  }
-
   /* Until an illustration is supplied there is no second column to balance
      against, so the band centers rather than leaving a void on the right. */
-  .training:not(.training--media) .training__body {
+  .training:not(.training--media) .training__intro,
+  .training:not(.training--media) .training__actions {
+    max-width: 40rem;
+    width: 100%;
     margin-inline: auto;
+  }
+
+  .training:not(.training--media) .training__intro {
     text-align: center;
   }
 
@@ -663,7 +742,7 @@ const storiesFor = (programId: string) =>
     font-size: 1.08rem;
     color: #ece4fb;
     max-width: 46ch;
-    margin-bottom: 1.75rem;
+    margin-bottom: 0;
   }
 
   .training__none {
@@ -709,6 +788,84 @@ const storiesFor = (programId: string) =>
   .training__list svg {
     flex: none;
     color: #d9c9f7;
+  }
+
+  .training__label {
+    margin: 0 0 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #d9c9f7;
+  }
+
+  .training__videos {
+    margin-top: 1.75rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid rgb(255 255 255 / 22%);
+    text-align: left;
+  }
+
+  .training__video-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .training__video {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    background: #fff;
+    color: var(--color-ink);
+    border-radius: var(--radius-card);
+    box-shadow: 0 10px 30px rgb(30 16 52 / 25%);
+    text-decoration: none;
+  }
+
+  .training__video :global(svg) {
+    flex: none;
+  }
+
+  .training__video-text {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .training__video-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+
+  .training__video-desc {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .training__video-go {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 1.1rem;
+    background: var(--color-purple-dark);
+    color: #fff;
+    border-radius: var(--radius-button);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .training__video:hover .training__video-go {
+    background: var(--color-purple-text);
+  }
+
+  .training__video:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
   }
 
   /* A filled purple button would vanish against the band. */

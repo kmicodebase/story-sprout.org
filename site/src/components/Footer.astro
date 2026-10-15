@@ -75,7 +75,7 @@ const columns = [
 
   <div class="wrap site-footer__legal">
     <p>
-      {year} {siteConfig.parentOrg.name}., a {siteConfig.parentOrg.taxStatusDisplay}.
+      {year} <a href={siteConfig.parentOrg.url} rel="noopener">{siteConfig.parentOrg.name}.</a>, a {siteConfig.parentOrg.taxStatusDisplay}.
       <span class="site-footer__license">
         Curriculum shared under{' '}
         <a href={siteConfig.license.url} rel="license noopener">{siteConfig.license.short}</a>.</span>

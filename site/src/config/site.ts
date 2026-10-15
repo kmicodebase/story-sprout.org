@@ -43,6 +43,18 @@ export const siteConfig = {
    * noindex that was keeping an unfinished page out of search.
    */
   donationUrl: 'https://givebutter.com/kindness-matters-inc',
+  /**
+   * Recorded trainings, listed under "Watch anytime" in the homepage training
+   * band. Add one entry per video; the section hides itself when this is empty.
+   * Each link must be shared as "Anyone with the link can view".
+   */
+  trainingVideos: [
+    {
+      title: 'Story Sprout Training',
+      description: 'Recording of the Sept 6, 2026 session',
+      url: 'https://drive.google.com/file/d/1V8oyCI_qkdhEt2Vl_fGY_lTMbVdLRAZn/view?usp=sharing',
+    },
+  ] as { title: string; description: string; url: string }[],
   /** NOT SUPPLIED — the "Stay in the loop" band stays hidden until this exists. */
   newsletterUrl: '',
   /** NOT SUPPLIED — footer omits a contact line until this exists. */

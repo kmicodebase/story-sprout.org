@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro'
+import KmiMark from './KmiMark.astro'
 import { navLinks, siteConfig } from '../config/site'
 
 const path = Astro.url.pathname
@@ -8,6 +9,17 @@ const isCurrent = (href: string) =>
 ---
 
 <header class="site-header">
+  {/* The parent nonprofit, named the same way the footer names it. */}
+  <div class="parent-bar">
+    <div class="wrap parent-bar__inner">
+      <a class="parent-bar__link" href={siteConfig.parentOrg.url} rel="noopener">
+        <KmiMark size={30} />
+        <span>A program of <strong>{siteConfig.parentOrg.name}</strong></span>
+        <span class="parent-bar__arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+
   <div class="wrap site-header__inner">
     <a href="/" class="site-header__brand" aria-label="Story Sprout — home">
       <Logo />
@@ -52,6 +64,51 @@ const isCurrent = (href: string) =>
 </header>
 
 <style>
+  .parent-bar {
+    background: var(--color-lavender-soft);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .parent-bar__inner {
+    display: flex;
+    padding-block: 0.4rem;
+  }
+
+  .parent-bar__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--color-muted);
+    font-size: 0.86rem;
+    text-decoration: none;
+  }
+
+  .parent-bar__link strong {
+    color: var(--color-ink);
+    font-weight: 800;
+  }
+
+  .parent-bar__link:hover strong {
+    color: var(--color-purple-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .parent-bar__arrow {
+    color: var(--color-purple-text);
+    transition: transform 0.15s;
+  }
+
+  .parent-bar__link:hover .parent-bar__arrow {
+    transform: translateX(2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .parent-bar__arrow {
+      transition: none;
+    }
+  }
+
   .site-header {
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
