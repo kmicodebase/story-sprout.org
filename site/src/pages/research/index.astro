@@ -8,18 +8,6 @@ import { siteConfig } from '../../config/site'
 
 const items = await getResearch()
 const posts = await getBlog()
-
-// Institutions the advising researchers are affiliated with, supplied by the
-// project team. Listed as a set rather than an inline sentence because
-// "University of California, Irvine" contains a comma and would read as two
-// entries in a comma-separated run.
-const advisorInstitutions = [
-  'Massachusetts Institute of Technology',
-  'Carnegie Mellon University',
-  'Inria Paris',
-  'University of California, Irvine',
-  'University of Colorado Boulder',
-]
 ---
 
 <BaseLayout
@@ -345,25 +333,6 @@ const advisorInstitutions = [
 
   .intro p:not(.lede) {
     color: var(--color-muted);
-  }
-
-  .institutions {
-    list-style: none;
-    margin: 0 0 1rem;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .institutions li {
-    background: var(--color-lavender-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-button);
-    padding: 0.3rem 0.9rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--color-ink);
   }
 
   .research {

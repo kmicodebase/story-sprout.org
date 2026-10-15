@@ -117,27 +117,17 @@ The project team supplied intro copy for the research page. Two parts of it were
 more cautiously than dictated. Both are one edit away from being restored — they just need
 backing first.
 
-**1. Advisors — now named by institution.** The original request was a superlative about
-unnamed people ("world leading … advising and helping our team members"). That was first
-published as a plain statement of fields; the project team then supplied the institutions,
-which is a better claim because it is checkable. The page now lists:
-
-- Massachusetts Institute of Technology
-- Carnegie Mellon University
-- Inria Paris
-- University of California, Irvine
-- University of Colorado Boulder
-
-**Still needs doing before launch:** the brief (§9) allows advisors, collaborators, and
-partner organizations to be listed **only when approved**. Naming an institution publicly
-implies it is associated with the project, so confirm each advisor is content to be listed
-this way. Consider adding "affiliations shown for identification only" if the advisers are
-acting in a personal capacity rather than on behalf of their institutions — the usual
-convention, and it protects both sides.
+**1. Advisors — named by institution, approved.** The original request was a superlative
+about unnamed people ("world leading … advising and helping our team members"). It is now
+a checkable claim: the homepage reads "Guided by the professors from Carnegie Mellon, MIT
+and UC Irvine". On 2026-10-14 the project team confirmed the advisors are fine with their
+institutions being named. (`/research/` no longer lists institutions; an earlier
+five-institution list — which also included Inria Paris and the University of Colorado
+Boulder — was dropped from the page.)
 
 Note the paper itself is much more modest — "correspondence with colleagues in the field of
-child–computer interaction" — so the website and the manuscript now describe the same
-relationship quite differently. Worth reconciling.
+child–computer interaction" — so the website and the manuscript describe the same
+relationship differently. The project team reviewed this on 2026-10-14 and is fine with it.
 
 **2. "Will improve their writing skills."** Requested as an outcome; published as an aim,
 with an explicit note that measurement is reserved for a planned study.

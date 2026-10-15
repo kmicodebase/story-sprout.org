@@ -11,9 +11,8 @@ first names printed into the cover artwork and inside the PDFs. Publishing puts 
 on the public internet, where they will be indexed. That is a decision to make
 deliberately, not by deploying.
 
-Also outstanding: the five advisor institutions on `/research/` have not been confirmed as
-approved to be named. (The paper PDF's "Do not distribute" stamp was reviewed and kept —
-see `CONTENT_GAPS.md`.)
+The paper PDF's "Do not distribute" stamp and the institutions named on the homepage were
+both reviewed and approved by the project team on 2026-10-14 — see `CONTENT_GAPS.md`.
 
 ## Build settings
 
