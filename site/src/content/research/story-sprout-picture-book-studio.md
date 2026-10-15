@@ -32,7 +32,7 @@ consentNote: >-
   submission confirmation before launch. The authors asked for the full paper to be
   downloadable, so distributionApproved is set and the PDF is served from this site.
   Note that page 1 of the file still carries the NeurIPS template's "Do not distribute."
-  stamp; recompiling with the template's preprint option would remove that contradiction.
+  stamp. The project team reviewed this on 2026-10-14 and chose to keep the file as is.
   Status changed from "submitted" to "accepted" on 2026-10-14: the project team
   confirmed acceptance to the NeurIPS 2026 Creative AI Track.
 ---

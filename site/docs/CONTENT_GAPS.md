@@ -101,15 +101,15 @@ So `paper-platform.pdf` is now served at
 `/documents/research/story-sprout-picture-book-studio.pdf`, copied there by
 `npm run assets`. The research entry sets `distributionApproved: true`, which is what
 allows it; without that flag `scripts/check-content.mjs` fails the build for any paper
-with status `submitted` or `under-review` that is hosted on this site. Every build prints
-a warning that a manuscript under review is being served, so it stays visible.
+with status `submitted` or `under-review` that is hosted on this site.
 
-**One loose end:** the served PDF still has "Do not distribute" printed on its first page,
-which a reader will see. Recompiling with the NeurIPS template's preprint option removes
-that line and resolves the contradiction. Worth doing before launch.
+**Accepted (2026-10-14).** The project team confirmed acceptance to the NeurIPS 2026
+Creative AI Track, so `status` is now `accepted` and the badge reads "Accepted to NeurIPS
+2026 Creative AI Track". The served PDF is still the submission copy with "Do not
+distribute" on page 1; the team reviewed this and chose to keep it as is.
 
-`officialUrl` remains unset — it renders a "Publisher page" button, and the paper has no
-publisher yet. `status` must stay `submitted` until the authors say otherwise.
+`officialUrl` remains unset until a proceedings page exists — it renders a "Publisher
+page" button. Move `status` to `published` only once the paper is in the proceedings.
 
 ## Two claims on `/research/` that were softened
 
